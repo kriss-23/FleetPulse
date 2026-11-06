@@ -7,7 +7,7 @@ const publicLinks = [
 
 const authenticatedLinks = [
   ['Driver View', '/driver.html', 'bi-speedometer2'],
-  ['Daily Report / Bericht', '/bericht.html', 'bi-clipboard2-check'],
+  ['Daily Report', '/report.html', 'bi-clipboard2-check'],
 ];
 
 export function renderNavbar({ user = null, role = null } = {}) {

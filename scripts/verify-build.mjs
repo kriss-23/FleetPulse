@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 
-const pages = ['index.html', 'driver.html', 'report.html', 'bericht.html', 'admin.html', 'accountant.html'];
+const pages = ['index.html', 'driver.html', 'report.html', 'admin.html', 'accountant.html'];
 const missing = pages.filter((page) => !existsSync(`dist/${page}`));
 
 if (missing.length > 0) {
