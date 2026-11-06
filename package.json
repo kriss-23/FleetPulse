@@ -1,0 +1,24 @@
+{
+  "name": "fleetpulse",
+  "version": "1.0.0",
+  "description": "Fleet & Vehicle Equipment Tracker",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "@supabase/supabase-js": "^2.119.0",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.2"
+  },
+  "devDependencies": {
+    "vite": "^8.3.6"
+  }
+}
