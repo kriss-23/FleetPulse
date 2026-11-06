@@ -31,4 +31,4 @@ This document defines the intended application-level role model for FleetPulse. 
 
 ## Current Project State
 
-The configured Supabase project reference is `skfnptxtjmsjehikrlma`. The project currently has no reported public tables and no reported migrations through the configured Supabase MCP. Schema, policies, and migrations are intentionally deferred to the database milestone.
+The configured Supabase project reference is `skfnptxtjmsjehikrlma`. The initial schema and grant-hardening migrations are applied and tracked remotely as `20261106184657_initial_schema`, `20261106184745_restrict_public_table_access`, and `20261106184803_restrict_authenticated_table_grants`. They create the six tables described above with RLS enabled; future schema changes must use committed migrations and preserve the role boundaries in this document.
