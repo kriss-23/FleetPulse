@@ -69,7 +69,7 @@ export function renderNavbar({ user = null, role = null } = {}) {
               <button class="theme-toggle btn btn-sm" type="button" data-action="toggle-theme" aria-pressed="false">
                 <i class="bi bi-moon-stars" aria-hidden="true"></i><span data-theme-label>Dark mode</span>
               </button>
-              ${identity}<ul class="navbar-nav">${accountLinks}</ul>
+              ${identity}<span id="account-action-feedback" class="small text-success d-none" role="status" aria-live="polite"></span><ul class="navbar-nav">${accountLinks}</ul>
             </div>
           </div>
         </div>
@@ -97,12 +97,19 @@ export async function initializeNavbar() {
       const password = window.prompt('Enter a new password (at least 8 characters):');
       if (!password) return;
       if (password.length < 8) {
+        showAccountFeedback('Password was not changed. Use at least 8 characters.', 'danger');
         showToast('Use at least 8 characters for your new password.', { title: 'Password not changed', variant: 'warning' });
         return;
       }
       updatePassword(password)
-        .then(() => showToast('Your password was changed successfully.', { title: 'Password updated', variant: 'success' }))
-        .catch((error) => showToast(error.message, { title: 'Password change failed', variant: 'danger' }));
+        .then(() => {
+          showAccountFeedback('Password changed successfully.', 'success');
+          showToast('Your password was changed successfully.', { title: 'Password updated', variant: 'success' });
+        })
+        .catch((error) => {
+          showAccountFeedback(error.message, 'danger');
+          showToast(error.message, { title: 'Password change failed', variant: 'danger' });
+        });
     });
     document.querySelector('[data-action="delete-account"]')?.addEventListener('click', () => {
       confirmAction({
@@ -121,4 +128,11 @@ export async function initializeNavbar() {
   } catch (error) {
     showToast(error.message, { title: 'Session unavailable', variant: 'warning' });
   }
+}
+
+function showAccountFeedback(message, variant) {
+  const feedback = document.querySelector('#account-action-feedback');
+  if (!feedback) return;
+  feedback.textContent = message;
+  feedback.className = `small text-${variant}`;
 }
