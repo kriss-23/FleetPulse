@@ -19,8 +19,13 @@ export function confirmAction({ title = 'Confirm action', message = 'Are you sur
   document.querySelector('#confirm-dialog-message').textContent = message;
   const modal = window.bootstrap.Modal.getOrCreateInstance(document.querySelector('#confirm-dialog'));
   const submit = document.querySelector('#confirm-dialog-submit');
-  submit.onclick = () => {
-    onConfirm?.();
+  submit.onclick = async () => {
+    submit.disabled = true;
+    try {
+      await onConfirm?.();
+    } finally {
+      submit.disabled = false;
+    }
     modal.hide();
   };
   modal.show();

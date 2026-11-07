@@ -3,7 +3,7 @@ import { emptyState, loadingSkeleton, showToast } from '../components/feedback.j
 import { statusBadge } from '../components/status.js';
 import { escapeHtml } from '../utils/escape-html.js';
 import { fetchDriverFilterOptions, fetchFleetOverview } from '../services/fleet-service.js';
-import { getAuthenticatedContext, getRoleRedirect, getUserRole, signIn, signUp } from '../services/auth.js';
+import { getAuthenticatedContext, getRoleRedirect, getUserRole, sendPasswordReset, signIn, signUp, updatePassword } from '../services/auth.js';
 
 const appContent = `
   <section class="fleet-hero mb-4 mb-lg-5" aria-labelledby="fleet-overview-title">
@@ -54,6 +54,29 @@ const appContent = `
               <div class="invalid-feedback">Enter your password.</div>
             </div>
             <button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign in</button>
+            <a class="d-block mt-3 small" id="forgot-password-link" href="#forgot-password">Password forgotten?</a>
+          </form>
+        </div>
+        <div id="forgot-password-panel" class="d-none" role="region" aria-labelledby="forgot-password-title">
+          <h3 id="forgot-password-title" class="h5">Reset your password</h3>
+          <p class="text-secondary small">Enter your email address and we will send a secure password-reset link.</p>
+          <form id="forgot-password-form" novalidate>
+            <label class="form-label" for="forgot-password-email">Email address</label>
+            <input class="form-control" id="forgot-password-email" type="email" autocomplete="email" required>
+            <div class="invalid-feedback">Enter a valid email address.</div>
+            <button class="btn btn-primary mt-3" type="submit">Send reset email</button>
+            <a class="btn btn-link mt-3" href="#login">Back to sign in</a>
+          </form>
+        </div>
+        <div id="reset-password-panel" class="d-none" role="region" aria-labelledby="reset-password-title">
+          <h3 id="reset-password-title" class="h5">Choose a new password</h3>
+          <form id="reset-password-form" novalidate>
+            <label class="form-label" for="reset-password">New password</label>
+            <input class="form-control" id="reset-password" type="password" minlength="8" autocomplete="new-password" required>
+            <label class="form-label mt-3" for="reset-password-confirm">Confirm new password</label>
+            <input class="form-control" id="reset-password-confirm" type="password" minlength="8" autocomplete="new-password" required>
+            <div class="invalid-feedback">Passwords must match and contain at least 8 characters.</div>
+            <button class="btn btn-primary mt-3" type="submit">Save new password</button>
           </form>
         </div>
         <div id="register-panel" class="d-none" role="tabpanel" aria-labelledby="register-tab">
@@ -160,6 +183,8 @@ const loginForm = document.querySelector('#login-form');
 const registerForm = document.querySelector('#register-form');
 const loginPanel = document.querySelector('#login-panel');
 const registerPanel = document.querySelector('#register-panel');
+const forgotPasswordPanel = document.querySelector('#forgot-password-panel');
+const resetPasswordPanel = document.querySelector('#reset-password-panel');
 const loginTab = document.querySelector('#login-tab');
 const registerTab = document.querySelector('#register-tab');
 const authSection = document.querySelector('#auth-section');
@@ -195,18 +220,23 @@ document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
 
 function showAuthPanel(panel) {
   const isRegister = panel === 'register';
-  loginPanel.classList.toggle('d-none', isRegister);
+  const isForgot = panel === 'forgot-password';
+  const isReset = panel === 'reset-password';
+  loginPanel.classList.toggle('d-none', isRegister || isForgot || isReset);
   registerPanel.classList.toggle('d-none', !isRegister);
-  loginTab.classList.toggle('btn-primary', !isRegister);
-  loginTab.classList.toggle('btn-outline-primary', isRegister);
+  forgotPasswordPanel.classList.toggle('d-none', !isForgot);
+  resetPasswordPanel.classList.toggle('d-none', !isReset);
+  loginTab.classList.toggle('btn-primary', !isRegister && !isForgot && !isReset);
+  loginTab.classList.toggle('btn-outline-primary', isRegister || isForgot || isReset);
   registerTab.classList.toggle('btn-primary', isRegister);
   registerTab.classList.toggle('btn-outline-primary', !isRegister);
-  loginTab.setAttribute('aria-selected', String(!isRegister));
+  loginTab.setAttribute('aria-selected', String(!isRegister && !isForgot && !isReset));
   registerTab.setAttribute('aria-selected', String(isRegister));
 }
 
 function syncAuthHash() {
-  showAuthPanel(window.location.hash === '#register' ? 'register' : 'login');
+  const hash = window.location.hash.slice(1);
+  showAuthPanel(['register', 'forgot-password', 'reset-password'].includes(hash) ? hash : 'login');
 }
 
 window.addEventListener('hashchange', syncAuthHash);
@@ -281,6 +311,46 @@ registerForm.addEventListener('submit', async (event) => {
     showToast(error.message, { title: 'Registration failed', variant: 'danger' });
   } finally {
     submitButton.disabled = false;
+  }
+});
+
+document.querySelector('#forgot-password-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  form.classList.add('was-validated');
+  if (!form.checkValidity()) return;
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = true;
+  try {
+    await sendPasswordReset(document.querySelector('#forgot-password-email').value.trim());
+    showToast('If that email belongs to an account, a reset link has been sent.', { title: 'Check your email', variant: 'success' });
+  } catch (error) {
+    showToast(error.message, { title: 'Reset request failed', variant: 'danger' });
+  } finally {
+    button.disabled = false;
+  }
+});
+
+document.querySelector('#reset-password-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const password = document.querySelector('#reset-password');
+  const confirmation = document.querySelector('#reset-password-confirm');
+  confirmation.setCustomValidity(password.value === confirmation.value ? '' : 'Passwords do not match.');
+  form.classList.add('was-validated');
+  if (!form.checkValidity()) return;
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = true;
+  try {
+    await updatePassword(password.value);
+    showToast('Your password has been reset. You can now sign in.', { title: 'Password reset', variant: 'success' });
+    window.location.hash = '#login';
+    form.reset();
+    form.classList.remove('was-validated');
+  } catch (error) {
+    showToast(error.message, { title: 'Password reset failed', variant: 'danger' });
+  } finally {
+    button.disabled = false;
   }
 });
 

@@ -31,6 +31,27 @@ export async function signUp(email, password, fullName) {
   return data;
 }
 
+export async function sendPasswordReset(email) {
+  requireSupabase();
+  const redirectTo = `${window.location.origin}/index.html#reset-password`;
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+  if (error) throw new Error(error.message);
+}
+
+export async function updatePassword(password) {
+  requireSupabase();
+  const { error } = await supabaseClient.auth.updateUser({ password });
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteCurrentAccount() {
+  requireSupabase();
+  const { data, error } = await supabaseClient.rpc('delete_current_account');
+  if (error) throw new Error(error.message);
+  if (!data?.deleted) throw new Error('Your account could not be deleted.');
+  await signOut();
+}
+
 export async function getCurrentUser() {
   requireSupabase();
   const { data, error } = await supabaseClient.auth.getUser();

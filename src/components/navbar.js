@@ -1,6 +1,7 @@
 import { escapeHtml } from '../utils/escape-html.js';
-import { getAuthenticatedContext, signOut } from '../services/auth.js';
+import { deleteCurrentAccount, getAuthenticatedContext, signOut, updatePassword } from '../services/auth.js';
 import { showToast } from './feedback.js';
+import { confirmAction } from './confirm-dialog.js';
 
 const publicLinks = [
   ['Home / Login', '/index.html', 'bi-house-door'],
@@ -46,7 +47,8 @@ export function renderNavbar({ user = null, role = null } = {}) {
       <ul class="dropdown-menu dropdown-menu-end">
         <li><span class="dropdown-item-text small">${escapeHtml(roleLabel(role))}</span></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="/index.html#profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Account Profile</a></li>
+        <li><button class="dropdown-item" type="button" data-action="change-password"><i class="bi bi-key me-2" aria-hidden="true"></i>Change password</button></li>
+        <li><button class="dropdown-item text-danger" type="button" data-action="delete-account"><i class="bi bi-person-x me-2" aria-hidden="true"></i>Delete account</button></li>
         <li><button class="dropdown-item" type="button" data-action="logout"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Log out</button></li>
       </ul>
     </li>
@@ -90,6 +92,31 @@ export async function initializeNavbar() {
       } catch (error) {
         showToast(error.message, { title: 'Logout failed', variant: 'danger' });
       }
+    });
+    document.querySelector('[data-action="change-password"]')?.addEventListener('click', () => {
+      const password = window.prompt('Enter a new password (at least 8 characters):');
+      if (!password) return;
+      if (password.length < 8) {
+        showToast('Use at least 8 characters for your new password.', { title: 'Password not changed', variant: 'warning' });
+        return;
+      }
+      updatePassword(password)
+        .then(() => showToast('Your password was changed successfully.', { title: 'Password updated', variant: 'success' }))
+        .catch((error) => showToast(error.message, { title: 'Password change failed', variant: 'danger' }));
+    });
+    document.querySelector('[data-action="delete-account"]')?.addEventListener('click', () => {
+      confirmAction({
+        title: 'Delete FleetPulse account?',
+        message: 'This permanently deletes your account. Historical operational records are retained without your personal profile. Continue?',
+        onConfirm: async () => {
+          try {
+            await deleteCurrentAccount();
+            window.location.assign('/index.html');
+          } catch (error) {
+            showToast(error.message, { title: 'Account deletion failed', variant: 'danger' });
+          }
+        },
+      });
     });
   } catch (error) {
     showToast(error.message, { title: 'Session unavailable', variant: 'warning' });
