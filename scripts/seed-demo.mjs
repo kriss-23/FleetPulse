@@ -213,7 +213,7 @@ async function ensureUsers() {
   for (const account of accounts) {
     let user = byEmail.get(account.email);
     if (!user) {
-      user = await assertSuccess(
+      const created = await assertSuccess(
         await supabase.auth.admin.createUser({
           email: account.email,
           password: demoPassword,
@@ -221,6 +221,7 @@ async function ensureUsers() {
         }),
         `Creating Auth user ${account.email}`
       );
+      user = created.user;
       recordSummary('auth users', 'created');
     } else {
       users[account.key] = user;
