@@ -1,7 +1,7 @@
 const statuses = {
   active: { label: 'Active', className: 'status-active', icon: 'bi-check-circle-fill' },
   maintenance: { label: 'Maintenance', className: 'status-maintenance', icon: 'bi-tools' },
-  outOfService: { label: 'Out of Service', className: 'status-out', icon: 'bi-exclamation-octagon-fill' },
+  out_of_service: { label: 'Out of Service', className: 'status-out', icon: 'bi-exclamation-octagon-fill' },
 };
 
 export function statusBadge(status = 'active') {
