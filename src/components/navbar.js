@@ -119,7 +119,7 @@ export async function initializeNavbar() {
         onConfirm: async () => {
           try {
             await deleteCurrentAccount();
-            window.location.assign('/index.html');
+            window.location.replace('/index.html?account_deleted=1');
           } catch (error) {
             showToast(error.message, { title: 'Account deletion failed', variant: 'danger' });
           }

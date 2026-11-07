@@ -49,7 +49,10 @@ export async function deleteCurrentAccount() {
   const { data, error } = await supabaseClient.rpc('delete_current_account');
   if (error) throw new Error(error.message);
   if (!data?.deleted) throw new Error('Your account could not be deleted.');
-  await signOut();
+  const { error: signOutError } = await supabaseClient.auth.signOut({ scope: 'local' });
+  if (signOutError && signOutError.name !== 'AuthSessionMissingError') {
+    throw new Error(`Account deleted, but this browser session could not be cleared: ${signOutError.message}`);
+  }
 }
 
 export async function getCurrentUser() {

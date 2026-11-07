@@ -195,6 +195,11 @@ const authSection = document.querySelector('#auth-section');
 const signedInSection = document.querySelector('#signed-in-section');
 const signedInMessage = document.querySelector('#signed-in-message');
 
+if (new URLSearchParams(window.location.search).get('account_deleted') === '1') {
+  showToast('Your FleetPulse account was deleted successfully.', { title: 'Account deleted', variant: 'success' });
+  window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.hash}`);
+}
+
 async function updateAuthVisibility() {
   try {
     const context = await getAuthenticatedContext();
