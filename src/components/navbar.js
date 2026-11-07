@@ -45,7 +45,12 @@ export function renderNavbar({ user = null, role = null } = {}) {
           </button>
           <div class="collapse navbar-collapse" id="primary-navigation">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">${navLinks}</ul>
-            <div class="d-flex align-items-center gap-3">${identity}<ul class="navbar-nav">${accountLinks}</ul></div>
+            <div class="d-flex align-items-center gap-3">
+              <button class="theme-toggle btn btn-sm" type="button" data-action="toggle-theme" aria-pressed="false">
+                <i class="bi bi-moon-stars" aria-hidden="true"></i><span data-theme-label>Dark mode</span>
+              </button>
+              ${identity}<ul class="navbar-nav">${accountLinks}</ul>
+            </div>
           </div>
         </div>
       </nav>

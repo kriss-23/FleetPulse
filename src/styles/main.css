@@ -9,6 +9,10 @@
   --fp-maintenance: #b7791f;
   --fp-out: #c0392b;
   --fp-border: #dce3e8;
+  --fp-footer: #fff;
+  --fp-empty: #fff;
+  --fp-skeleton-start: #e8edf0;
+  --fp-skeleton-end: #f7f9fa;
   --fp-radius-sm: .5rem;
   --fp-radius-lg: 1rem;
   --fp-space-1: .25rem;
@@ -32,12 +36,14 @@ a:focus-visible, button:focus-visible, .form-control:focus-visible, .form-select
 .brand-mark { display: inline-grid; place-items: center; width: 2rem; height: 2rem; margin-right: .5rem; border-radius: .5rem; color: #fff; background: var(--fp-brand); }
 .nav-link { display: flex; align-items: center; gap: .45rem; }
 .navbar .btn-link { color: var(--bs-navbar-color); text-decoration: none; }
+.theme-toggle { border: 1px solid rgb(216 226 232 / 35%); color: var(--bs-navbar-color); }
+.theme-toggle:hover { border-color: rgb(216 226 232 / 70%); color: #fff; }
 .page-container { flex: 1; }
 .eyebrow { margin-bottom: .5rem; color: var(--fp-brand); font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .page-title { margin-bottom: .75rem; font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 750; letter-spacing: -.04em; }
 .page-intro { max-width: 46rem; margin-bottom: 2rem; color: var(--fp-muted); font-size: 1.1rem; }
 .placeholder-card { border: 1px solid var(--fp-border); border-radius: var(--fp-radius-lg); background: var(--fp-surface); box-shadow: var(--fp-shadow); }
-.site-footer { padding: 1.25rem 0; border-top: 1px solid var(--fp-border); color: var(--fp-muted); background: #fff; font-size: .9rem; }
+.site-footer { padding: 1.25rem 0; border-top: 1px solid var(--fp-border); color: var(--fp-muted); background: var(--fp-footer); font-size: .9rem; }
 .site-footer a { color: inherit; text-decoration: none; }
 .site-footer a:hover { color: var(--fp-brand); }
 .status-badge { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .65rem; border-radius: 999px; font-size: .8rem; font-weight: 700; }
@@ -45,10 +51,37 @@ a:focus-visible, button:focus-visible, .form-control:focus-visible, .form-select
 .status-maintenance { color: #7a4d08; background: #fff3cd; }
 .status-out { color: #842029; background: #f8d7da; }
 .skeleton-list { display: grid; gap: .75rem; }
-.skeleton-line { height: 1rem; border-radius: .35rem; background: linear-gradient(90deg, #e8edf0 25%, #f7f9fa 50%, #e8edf0 75%); background-size: 200% 100%; animation: skeleton 1.5s infinite; }
-.empty-state { padding: 3rem 1rem; border: 1px dashed var(--fp-border); border-radius: var(--fp-radius-lg); background: #fff; }
+.skeleton-line { height: 1rem; border-radius: .35rem; background: linear-gradient(90deg, var(--fp-skeleton-start) 25%, var(--fp-skeleton-end) 50%, var(--fp-skeleton-start) 75%); background-size: 200% 100%; animation: skeleton 1.5s infinite; }
+.empty-state { padding: 3rem 1rem; border: 1px dashed var(--fp-border); border-radius: var(--fp-radius-lg); background: var(--fp-empty); }
 .empty-state-icon { margin-bottom: 1rem; color: var(--fp-muted); font-size: 2.5rem; }
 .toast-container { z-index: 1090; }
 .toast-indicator { width: .65rem; height: .65rem; border-radius: 50%; }
 @keyframes skeleton { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+
+[data-theme="dark"] {
+  --fp-ink: #e8edf3;
+  --fp-muted: #a9b5c3;
+  --fp-canvas: #111827;
+  --fp-surface: #1f2937;
+  --fp-border: #374151;
+  --fp-footer: #172033;
+  --fp-empty: #1f2937;
+  --fp-skeleton-start: #273449;
+  --fp-skeleton-end: #36465d;
+  --fp-shadow: 0 .75rem 2rem rgb(0 0 0 / 25%);
+}
+
+[data-theme="dark"] .text-secondary { color: var(--fp-muted) !important; }
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .dropdown-menu,
+[data-theme="dark"] .toast,
+[data-theme="dark"] .modal-content {
+  color: var(--fp-ink);
+  background-color: var(--fp-surface);
+  border-color: var(--fp-border);
+}
+[data-theme="dark"] .dropdown-item { color: var(--fp-ink); }
+[data-theme="dark"] .dropdown-item:hover,
+[data-theme="dark"] .dropdown-item:focus { background-color: #374151; }
