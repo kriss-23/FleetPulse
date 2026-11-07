@@ -17,6 +17,7 @@ export function renderPage({ title, description, eyebrow, content, user = null, 
     <div class="app-shell">
       ${renderNavbar({ user, role })}
       <main class="page-container">
+        <a class="skip-link" href="#page-bottom">Skip to page bottom</a>
         <div class="container py-4 py-lg-5">
           <p class="eyebrow">${eyebrow}</p>
           <h1 class="page-title">${title}</h1>
@@ -25,6 +26,9 @@ export function renderPage({ title, description, eyebrow, content, user = null, 
         </div>
       </main>
       ${renderFooter()}
+      <a class="page-bottom-button btn btn-primary" href="#page-bottom" aria-label="Go to page bottom">
+        <i class="bi bi-arrow-down" aria-hidden="true"></i><span>Bottom</span>
+      </a>
     </div>
   `;
   const themeToggle = app.querySelector('[data-action="toggle-theme"]');

@@ -10,6 +10,7 @@ export default defineConfig({
         report: resolve(import.meta.dirname, 'report.html'),
         admin: resolve(import.meta.dirname, 'admin.html'),
         accountant: resolve(import.meta.dirname, 'accountant.html'),
+        privacy: resolve(import.meta.dirname, 'privacy.html'),
       },
     },
   },
