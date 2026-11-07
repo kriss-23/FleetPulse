@@ -1,8 +1,9 @@
 const CONSENT_KEY = 'fleetpulse-analytics-consent';
+const DEFAULT_CLARITY_PROJECT_ID = 'za60i89kmj';
 let clarityLoaded = false;
 
 function loadClarity() {
-  const projectId = import.meta.env.VITE_CLARITY_PROJECT_ID;
+  const projectId = import.meta.env.VITE_CLARITY_PROJECT_ID || DEFAULT_CLARITY_PROJECT_ID;
   if (clarityLoaded || !projectId) return;
   clarityLoaded = true;
   window.clarity = window.clarity || function clarityProxy(...args) {
