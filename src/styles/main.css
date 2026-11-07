@@ -74,6 +74,12 @@ a:focus-visible, button:focus-visible, .form-control:focus-visible, .form-select
 .vehicle-links { display: flex; flex-wrap: wrap; gap: .75rem; border-top: 1px solid var(--fp-border); padding-top: .75rem; font-size: .82rem; font-weight: 650; }
 .vehicle-links a { text-decoration: none; }
 .page-bottom-button { position: fixed; right: 1rem; bottom: 1rem; z-index: 1000; display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px; box-shadow: var(--fp-shadow); }
+.auth-shell { overflow: hidden; }
+.demo-card { padding: 1rem; border: 1px solid var(--fp-border); border-radius: var(--fp-radius-sm); background: color-mix(in srgb, var(--fp-brand) 7%, var(--fp-surface)); }
+.demo-login-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.accordion-item { border-color: var(--fp-border); background: var(--fp-surface); }
+.accordion-button { color: var(--fp-ink); background: var(--fp-surface); }
+.accordion-button:not(.collapsed) { color: var(--fp-brand-dark); background: color-mix(in srgb, var(--fp-brand) 8%, var(--fp-surface)); box-shadow: none; }
 .site-footer { padding: 1.25rem 0; border-top: 1px solid var(--fp-border); color: var(--fp-muted); background: var(--fp-footer); font-size: .9rem; }
 .site-footer a { color: inherit; text-decoration: none; }
 .site-footer a:hover { color: var(--fp-brand); }

@@ -6,71 +6,6 @@ import { fetchDriverFilterOptions, fetchFleetOverview } from '../services/fleet-
 import { getRoleRedirect, getUserRole, signIn, signUp } from '../services/auth.js';
 
 const appContent = `
-  <section class="auth-panel placeholder-card p-4 p-md-5 mb-4 mb-lg-5" aria-labelledby="auth-title">
-    <div class="row g-4">
-      <div class="col-lg-5">
-        <p class="eyebrow mb-2">Secure access</p>
-        <h2 id="auth-title" class="h4">Sign in to FleetPulse</h2>
-        <p class="text-secondary mb-0">Use your FleetPulse account to access role-specific fleet operations.</p>
-      </div>
-      <div class="col-lg-7">
-        <form id="login-form" novalidate>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label" for="login-email">Email address</label>
-              <input class="form-control" id="login-email" type="email" autocomplete="email" required>
-              <div class="invalid-feedback">Enter a valid email address.</div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="login-password">Password</label>
-              <input class="form-control" id="login-password" type="password" autocomplete="current-password" minlength="8" required>
-              <div class="invalid-feedback">Enter your password.</div>
-            </div>
-          </div>
-          <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
-            <button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign in</button>
-            <a class="btn btn-outline-secondary" href="#register">Create an account</a>
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
-  <section id="register" class="placeholder-card p-4 p-md-5 mb-4 mb-lg-5" aria-labelledby="register-title">
-    <div class="row g-4">
-      <div class="col-lg-5">
-        <p class="eyebrow mb-2">New account</p>
-        <h2 id="register-title" class="h4">Register for FleetPulse</h2>
-        <p class="text-secondary mb-0">New accounts receive the default Driver role. A Fleet Manager can change roles when appropriate.</p>
-      </div>
-      <div class="col-lg-7">
-        <form id="register-form" novalidate>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label" for="register-name">Full name</label>
-              <input class="form-control" id="register-name" type="text" autocomplete="name" minlength="2" maxlength="120" required>
-              <div class="invalid-feedback">Enter your full name.</div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="register-email">Email address</label>
-              <input class="form-control" id="register-email" type="email" autocomplete="email" required>
-              <div class="invalid-feedback">Enter a valid email address.</div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="register-password">Password</label>
-              <input class="form-control" id="register-password" type="password" autocomplete="new-password" minlength="8" required>
-              <div class="invalid-feedback">Use at least 8 characters.</div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="register-confirm-password">Confirm password</label>
-              <input class="form-control" id="register-confirm-password" type="password" autocomplete="new-password" minlength="8" required>
-              <div class="invalid-feedback">Passwords must match.</div>
-            </div>
-          </div>
-          <button class="btn btn-outline-primary mt-3" type="submit"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Register</button>
-        </form>
-      </div>
-    </div>
-  </section>
   <section class="fleet-hero mb-4 mb-lg-5" aria-labelledby="fleet-overview-title">
     <div class="fleet-hero-content">
       <p class="eyebrow mb-2">Fleet operations platform</p>
@@ -78,6 +13,75 @@ const appContent = `
       <p class="mb-0">FleetPulse gives operations teams a clear, real-time view of vehicle readiness, assignments, and service priorities.</p>
     </div>
     <div class="fleet-hero-mark" aria-hidden="true"><i class="bi bi-truck"></i></div>
+  </section>
+
+  <section class="auth-shell placeholder-card p-4 p-md-5 mb-4 mb-lg-5" aria-labelledby="auth-title">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-5">
+        <p class="eyebrow mb-2">Secure access</p>
+        <h2 id="auth-title" class="h4">Access your FleetPulse workspace</h2>
+        <p class="text-secondary mb-4">Sign in for role-specific fleet operations, or create a new Driver account.</p>
+        <div class="demo-card">
+          <p class="eyebrow mb-2">Evaluator access</p>
+          <h3 class="h6">🚀 Quick Demo Login</h3>
+          <p class="small text-secondary">Fill a seeded demo account into the sign-in form. The demo password is read from <code>VITE_DEMO_PASSWORD</code>.</p>
+          <div class="demo-login-grid">
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="manager">Fleet Manager</button>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="accountant">Accountant</button>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="warehouse">Warehouse Specialist</button>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="driver">Driver</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="auth-tabs btn-group mb-4" role="tablist" aria-label="Authentication">
+          <a class="btn btn-primary" id="login-tab" href="#login" role="tab" aria-controls="login-panel">Sign in</a>
+          <a class="btn btn-outline-primary" id="register-tab" href="#register" role="tab" aria-controls="register-panel">Register</a>
+        </div>
+        <div id="login-panel" role="tabpanel" aria-labelledby="login-tab">
+          <form id="login-form" novalidate>
+            <div class="mb-3">
+              <label class="form-label" for="login-email">Email address</label>
+              <input class="form-control" id="login-email" type="email" autocomplete="email" required>
+              <div class="invalid-feedback">Enter a valid email address.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="login-password">Password</label>
+              <input class="form-control" id="login-password" type="password" autocomplete="current-password" minlength="8" required>
+              <div class="invalid-feedback">Enter your password.</div>
+            </div>
+            <button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign in</button>
+          </form>
+        </div>
+        <div id="register-panel" class="d-none" role="tabpanel" aria-labelledby="register-tab">
+          <form id="register-form" novalidate>
+            <div class="mb-3">
+              <label class="form-label" for="register-name">Full name</label>
+              <input class="form-control" id="register-name" type="text" autocomplete="name" minlength="2" maxlength="120" required>
+              <div class="invalid-feedback">Enter your full name.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="register-email">Email address</label>
+              <input class="form-control" id="register-email" type="email" autocomplete="email" required>
+              <div class="invalid-feedback">Enter a valid email address.</div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="register-password">Password</label>
+                <input class="form-control" id="register-password" type="password" autocomplete="new-password" minlength="8" required>
+                <div class="invalid-feedback">Use at least 8 characters.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="register-confirm-password">Confirm password</label>
+                <input class="form-control" id="register-confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+                <div class="invalid-feedback">Passwords must match.</div>
+              </div>
+            </div>
+            <button class="btn btn-outline-primary mt-3" type="submit"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Register</button>
+          </form>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section aria-labelledby="fleet-status-title" class="mb-4 mb-lg-5">
@@ -139,6 +143,49 @@ renderPage({
 
 const loginForm = document.querySelector('#login-form');
 const registerForm = document.querySelector('#register-form');
+const loginPanel = document.querySelector('#login-panel');
+const registerPanel = document.querySelector('#register-panel');
+const loginTab = document.querySelector('#login-tab');
+const registerTab = document.querySelector('#register-tab');
+
+function showAuthPanel(panel) {
+  const isRegister = panel === 'register';
+  loginPanel.classList.toggle('d-none', isRegister);
+  registerPanel.classList.toggle('d-none', !isRegister);
+  loginTab.classList.toggle('btn-primary', !isRegister);
+  loginTab.classList.toggle('btn-outline-primary', isRegister);
+  registerTab.classList.toggle('btn-primary', isRegister);
+  registerTab.classList.toggle('btn-outline-primary', !isRegister);
+  loginTab.setAttribute('aria-selected', String(!isRegister));
+  registerTab.setAttribute('aria-selected', String(isRegister));
+}
+
+function syncAuthHash() {
+  showAuthPanel(window.location.hash === '#register' ? 'register' : 'login');
+}
+
+window.addEventListener('hashchange', syncAuthHash);
+syncAuthHash();
+
+const demoEmails = {
+  manager: 'manager.demo@fleetpulse.local',
+  accountant: 'accountant.demo@fleetpulse.local',
+  warehouse: 'warehouse.demo@fleetpulse.local',
+  driver: 'driver.one.demo@fleetpulse.local',
+};
+document.querySelectorAll('[data-demo-role]').forEach((button) => {
+  button.addEventListener('click', () => {
+    showAuthPanel('login');
+    window.history.replaceState(null, '', '#login');
+    document.querySelector('#login-email').value = demoEmails[button.dataset.demoRole];
+    const demoPassword = import.meta.env.VITE_DEMO_PASSWORD;
+    if (demoPassword) document.querySelector('#login-password').value = demoPassword;
+    showToast(
+      demoPassword ? 'Demo credentials filled. Select Sign in to continue.' : 'Demo email filled. Set VITE_DEMO_PASSWORD to fill the password automatically.',
+      { title: 'Quick Demo Login', variant: 'info' }
+    );
+  });
+});
 
 function validateForm(form) {
   form.classList.add('was-validated');

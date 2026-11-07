@@ -5,6 +5,8 @@ import { showToast } from './feedback.js';
 const publicLinks = [
   ['Home / Login', '/index.html', 'bi-house-door'],
   ['Register', '/index.html#register', 'bi-person-plus'],
+  ['FAQ', '/faq.html', 'bi-question-circle'],
+  ['Legal Notice', '/legal_notice.html', 'bi-file-earmark-text'],
 ];
 
 const authenticatedLinks = [
