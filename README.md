@@ -9,10 +9,10 @@ records, invoices, and fleet expenses. It was developed for SoftUni's
 
 | Item | Value |
 |---|---|
-| Author | Configure before submission |
-| Email | Configure before submission |
+| Author | Kristiyan Ivanov |
+| Email | kriss.ivanov@yahoo.com |
 | GitHub repository | https://github.com/kriss-23/FleetPulse |
-| Live project URL | Configure after Render deployment |
+| Live project URL | https://fleetpulse-t4yf.onrender.com |
 | Supabase project | FleetPulse demo project |
 
 Do not commit passwords, service-role keys, database passwords, or private
