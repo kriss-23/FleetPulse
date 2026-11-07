@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fleetpulse
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: VITE_DEMO_PASSWORD
+        sync: false
