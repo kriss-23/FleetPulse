@@ -15,6 +15,9 @@ renderPage({
       <h2 class="h4 mt-4">Storage and retention</h2>
       <p>Inspection photos, issue photos, and maintenance documents are stored only when submitted through an authorized workflow. Historical operational records are retained to support safety, maintenance, and audit requirements.</p>
 
+      <h2 class="h4 mt-4">Optional analytics</h2>
+      <p>Where enabled by the deployment, Microsoft Clarity may be used to understand anonymous interface usability. Clarity is not loaded until you choose “Allow analytics” in the consent banner. You can choose “Only necessary” to decline optional analytics. The deployment owner is responsible for configuring the applicable privacy settings and notices.</p>
+
       <h2 class="h4 mt-4">Contact</h2>
       <p class="mb-0">For privacy questions or requests concerning FleetPulse data, contact the organization responsible for your FleetPulse deployment.</p>
     </article>

@@ -7,6 +7,7 @@ import { renderFooter } from './footer.js';
 import { mountConfirmDialog } from './confirm-dialog.js';
 import { mountToastContainer } from './feedback.js';
 import { initializeTheme, toggleTheme } from './theme.js';
+import { mountConsentBanner } from './consent-banner.js';
 
 export function renderPage({ title, description, eyebrow, content, user = null, role = null }) {
   const app = document.querySelector('#app');
@@ -51,6 +52,7 @@ export function renderPage({ title, description, eyebrow, content, user = null, 
   setupThemeToggle();
   mountConfirmDialog();
   mountToastContainer();
+  mountConsentBanner();
   initializeNavbar().then(setupThemeToggle);
 }
 

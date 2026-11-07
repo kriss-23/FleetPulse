@@ -71,10 +71,23 @@ export async function getUserRole(userId) {
   return data?.role || null;
 }
 
+export async function getUserProfile(userId) {
+  requireSupabase();
+  if (!userId) return null;
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .select('full_name')
+    .eq('id', userId)
+    .maybeSingle();
+  if (error) throw new Error(`Your profile could not be loaded: ${error.message}`);
+  return data || null;
+}
+
 export async function getAuthenticatedContext() {
   const user = await getCurrentUser();
   if (!user) return { user: null, role: null };
-  return { user, role: await getUserRole(user.id) };
+  const [role, profile] = await Promise.all([getUserRole(user.id), getUserProfile(user.id)]);
+  return { user, role, profile };
 }
 
 export async function signOut() {

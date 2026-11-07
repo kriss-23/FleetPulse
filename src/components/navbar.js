@@ -32,7 +32,7 @@ function buildLinks(user, role) {
   return links;
 }
 
-export function renderNavbar({ user = null, role = null } = {}) {
+export function renderNavbar({ user = null, role = null, profile = null } = {}) {
   const links = buildLinks(user, role);
   const navLinks = links.map(([label, href, icon]) => `
     <li class="nav-item">
@@ -53,7 +53,8 @@ export function renderNavbar({ user = null, role = null } = {}) {
       </ul>
     </li>
   ` : '';
-  const identity = user ? `<span class="navbar-text small">${escapeHtml(user.email || 'Signed in')}</span>` : '';
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email || 'Signed in';
+  const identity = user ? `<span class="navbar-text small" title="${escapeHtml(user.email || '')}">${escapeHtml(displayName)}</span>` : '';
 
   return `
     <header class="site-header">
