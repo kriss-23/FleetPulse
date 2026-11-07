@@ -1,4 +1,6 @@
 import { escapeHtml } from '../utils/escape-html.js';
+import { getAuthenticatedContext, signOut } from '../services/auth.js';
+import { showToast } from './feedback.js';
 
 const publicLinks = [
   ['Home / Login', '/index.html', 'bi-house-door'],
@@ -10,29 +12,43 @@ const authenticatedLinks = [
   ['Daily Report', '/report.html', 'bi-clipboard2-check'],
 ];
 
-export function renderNavbar({ user = null, role = null } = {}) {
-  const links = user ? [...authenticatedLinks] : publicLinks;
-  if (role === 'Fleet Manager') links.push(['Fleet Manager Panel', '/admin.html', 'bi-truck']);
-  if (role === 'Accountant') links.push(['Accountant Portal', '/accountant.html', 'bi-receipt']);
+function roleLabel(role) {
+  return {
+    manager: 'Fleet Manager',
+    accountant: 'Accountant',
+    warehouse: 'Warehouse Specialist',
+    driver: 'Driver',
+  }[role] || 'Authenticated user';
+}
 
+function buildLinks(user, role) {
+  if (!user) return publicLinks;
+  const links = [...authenticatedLinks];
+  if (role === 'manager') links.push(['Fleet Manager Panel', '/admin.html', 'bi-truck']);
+  if (role === 'accountant') links.push(['Accountant Portal', '/accountant.html', 'bi-receipt']);
+  return links;
+}
+
+export function renderNavbar({ user = null, role = null } = {}) {
+  const links = buildLinks(user, role);
   const navLinks = links.map(([label, href, icon]) => `
     <li class="nav-item">
       <a class="nav-link" href="${href}"><i class="bi ${icon}" aria-hidden="true"></i><span>${label}</span></a>
     </li>
   `).join('');
-
   const accountLinks = user ? `
     <li class="nav-item dropdown">
       <button class="nav-link dropdown-toggle btn btn-link" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="bi bi-person-circle" aria-hidden="true"></i><span>Account</span>
       </button>
       <ul class="dropdown-menu dropdown-menu-end">
+        <li><span class="dropdown-item-text small">${escapeHtml(roleLabel(role))}</span></li>
+        <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="/index.html#profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Account Profile</a></li>
         <li><button class="dropdown-item" type="button" data-action="logout"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Log out</button></li>
       </ul>
     </li>
   ` : '';
-
   const identity = user ? `<span class="navbar-text small">${escapeHtml(user.email || 'Signed in')}</span>` : '';
 
   return `
@@ -56,4 +72,24 @@ export function renderNavbar({ user = null, role = null } = {}) {
       </nav>
     </header>
   `;
+}
+
+export async function initializeNavbar() {
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+  try {
+    const context = await getAuthenticatedContext();
+    header.outerHTML = renderNavbar(context);
+    const logoutButton = document.querySelector('[data-action="logout"]');
+    logoutButton?.addEventListener('click', async () => {
+      try {
+        await signOut();
+        window.location.assign('/index.html');
+      } catch (error) {
+        showToast(error.message, { title: 'Logout failed', variant: 'danger' });
+      }
+    });
+  } catch (error) {
+    showToast(error.message, { title: 'Session unavailable', variant: 'warning' });
+  }
 }

@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '../styles/main.css';
-import { renderNavbar } from './navbar.js';
+import { initializeNavbar, renderNavbar } from './navbar.js';
 import { renderFooter } from './footer.js';
 import { mountConfirmDialog } from './confirm-dialog.js';
 import { mountToastContainer } from './feedback.js';
@@ -32,22 +32,26 @@ export function renderPage({ title, description, eyebrow, content, user = null, 
     </div>
   `;
   const themeToggle = app.querySelector('[data-action="toggle-theme"]');
-  const themeLabel = themeToggle?.querySelector('[data-theme-label]');
-  const themeIcon = themeToggle?.querySelector('i');
-  if (themeToggle && themeLabel && themeIcon) {
+  const setupThemeToggle = () => {
+    const currentToggle = app.querySelector('[data-action="toggle-theme"]');
+    const themeLabel = currentToggle?.querySelector('[data-theme-label]');
+    const themeIcon = currentToggle?.querySelector('i');
+    if (!currentToggle || !themeLabel || !themeIcon || currentToggle.dataset.bound === 'true') return;
     const updateThemeToggle = (theme) => {
       const isDark = theme === 'dark';
-      themeToggle.setAttribute('aria-pressed', String(isDark));
-      themeToggle.setAttribute('aria-label', `Switch to ${isDark ? 'light' : 'dark'} mode`);
+      currentToggle.setAttribute('aria-pressed', String(isDark));
+      currentToggle.setAttribute('aria-label', `Switch to ${isDark ? 'light' : 'dark'} mode`);
       themeLabel.textContent = `${isDark ? 'Light' : 'Dark'} mode`;
       themeIcon.className = `bi ${isDark ? 'bi-sun' : 'bi-moon-stars'}`;
     };
-
+    currentToggle.dataset.bound = 'true';
     updateThemeToggle(document.documentElement.dataset.theme);
-    themeToggle.addEventListener('click', () => updateThemeToggle(toggleTheme()));
-  }
+    currentToggle.addEventListener('click', () => updateThemeToggle(toggleTheme()));
+  };
+  setupThemeToggle();
   mountConfirmDialog();
   mountToastContainer();
+  initializeNavbar().then(setupThemeToggle);
 }
 
 export function selectedQueryValue(key) {

@@ -30,8 +30,9 @@ export function showToast(message, { title = 'FleetPulse', variant = 'primary' }
   const toast = document.createElement('div');
   toast.className = 'toast align-items-center border-0';
   toast.setAttribute('role', 'alert');
-  toast.innerHTML = `<div class="toast-header"><span class="toast-indicator bg-${variant} me-2"></span><strong class="me-auto">${title}</strong><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div><div class="toast-body">${message}</div>`;
+  toast.innerHTML = `<div class="toast-header"><span class="toast-indicator bg-${escapeHtml(variant)} me-2"></span><strong class="me-auto">${escapeHtml(title)}</strong><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div><div class="toast-body">${escapeHtml(message)}</div>`;
   container.append(toast);
   const instance = window.bootstrap?.Toast.getOrCreateInstance(toast, { delay: 5000 });
   instance?.show();
 }
+import { escapeHtml } from '../utils/escape-html.js';

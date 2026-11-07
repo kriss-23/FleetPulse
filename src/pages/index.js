@@ -3,8 +3,74 @@ import { emptyState, loadingSkeleton, showToast } from '../components/feedback.j
 import { statusBadge } from '../components/status.js';
 import { escapeHtml } from '../utils/escape-html.js';
 import { fetchDriverFilterOptions, fetchFleetOverview } from '../services/fleet-service.js';
+import { getRoleRedirect, getUserRole, signIn, signUp } from '../services/auth.js';
 
 const appContent = `
+  <section class="auth-panel placeholder-card p-4 p-md-5 mb-4 mb-lg-5" aria-labelledby="auth-title">
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <p class="eyebrow mb-2">Secure access</p>
+        <h2 id="auth-title" class="h4">Sign in to FleetPulse</h2>
+        <p class="text-secondary mb-0">Use your FleetPulse account to access role-specific fleet operations.</p>
+      </div>
+      <div class="col-lg-7">
+        <form id="login-form" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="login-email">Email address</label>
+              <input class="form-control" id="login-email" type="email" autocomplete="email" required>
+              <div class="invalid-feedback">Enter a valid email address.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="login-password">Password</label>
+              <input class="form-control" id="login-password" type="password" autocomplete="current-password" minlength="8" required>
+              <div class="invalid-feedback">Enter your password.</div>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign in</button>
+            <a class="btn btn-outline-secondary" href="#register">Create an account</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+  <section id="register" class="placeholder-card p-4 p-md-5 mb-4 mb-lg-5" aria-labelledby="register-title">
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <p class="eyebrow mb-2">New account</p>
+        <h2 id="register-title" class="h4">Register for FleetPulse</h2>
+        <p class="text-secondary mb-0">New accounts receive the default Driver role. A Fleet Manager can change roles when appropriate.</p>
+      </div>
+      <div class="col-lg-7">
+        <form id="register-form" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="register-name">Full name</label>
+              <input class="form-control" id="register-name" type="text" autocomplete="name" minlength="2" maxlength="120" required>
+              <div class="invalid-feedback">Enter your full name.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="register-email">Email address</label>
+              <input class="form-control" id="register-email" type="email" autocomplete="email" required>
+              <div class="invalid-feedback">Enter a valid email address.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="register-password">Password</label>
+              <input class="form-control" id="register-password" type="password" autocomplete="new-password" minlength="8" required>
+              <div class="invalid-feedback">Use at least 8 characters.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="register-confirm-password">Confirm password</label>
+              <input class="form-control" id="register-confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+              <div class="invalid-feedback">Passwords must match.</div>
+            </div>
+          </div>
+          <button class="btn btn-outline-primary mt-3" type="submit"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Register</button>
+        </form>
+      </div>
+    </div>
+  </section>
   <section class="fleet-hero mb-4 mb-lg-5" aria-labelledby="fleet-overview-title">
     <div class="fleet-hero-content">
       <p class="eyebrow mb-2">Fleet operations platform</p>
@@ -69,6 +135,61 @@ renderPage({
   title: 'Vehicle overview',
   description: 'Monitor vehicle readiness and service priorities from one operational view.',
   content: appContent,
+});
+
+const loginForm = document.querySelector('#login-form');
+const registerForm = document.querySelector('#register-form');
+
+function validateForm(form) {
+  form.classList.add('was-validated');
+  return form.checkValidity();
+}
+
+loginForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (!validateForm(loginForm)) return;
+  const submitButton = loginForm.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  try {
+    const data = await signIn(
+      document.querySelector('#login-email').value.trim(),
+      document.querySelector('#login-password').value
+    );
+    const role = await getUserRole(data.user?.id);
+    if (!role) throw new Error('Your account has no assigned FleetPulse role. Contact a Fleet Manager.');
+    showToast('Sign-in successful. Redirecting…', { title: 'Welcome', variant: 'success' });
+    window.setTimeout(() => window.location.assign(getRoleRedirect(role)), 350);
+  } catch (error) {
+    showToast(error.message, { title: 'Sign-in failed', variant: 'danger' });
+    submitButton.disabled = false;
+  }
+});
+
+registerForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const password = document.querySelector('#register-password');
+  const confirmation = document.querySelector('#register-confirm-password');
+  confirmation.setCustomValidity(password.value === confirmation.value ? '' : 'Passwords do not match.');
+  if (!validateForm(registerForm)) return;
+  const submitButton = registerForm.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  try {
+    const data = await signUp(
+      document.querySelector('#register-email').value.trim(),
+      password.value,
+      document.querySelector('#register-name').value.trim()
+    );
+    showToast(
+      data.session ? 'Registration successful. You can now sign in.' : 'Registration successful. Confirm your email before signing in.',
+      { title: 'Account created', variant: 'success' }
+    );
+    registerForm.reset();
+    registerForm.classList.remove('was-validated');
+  } catch (error) {
+    showToast(error.message, { title: 'Registration failed', variant: 'danger' });
+  } finally {
+    submitButton.disabled = false;
+  }
 });
 
 const summaryElement = document.querySelector('#fleet-summary');
