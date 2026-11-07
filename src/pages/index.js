@@ -3,7 +3,7 @@ import { emptyState, loadingSkeleton, showToast } from '../components/feedback.j
 import { statusBadge } from '../components/status.js';
 import { escapeHtml } from '../utils/escape-html.js';
 import { fetchDriverFilterOptions, fetchFleetOverview } from '../services/fleet-service.js';
-import { getRoleRedirect, getUserRole, signIn, signUp } from '../services/auth.js';
+import { getAuthenticatedContext, getRoleRedirect, getUserRole, signIn, signUp } from '../services/auth.js';
 
 const appContent = `
   <section class="fleet-hero mb-4 mb-lg-5" aria-labelledby="fleet-overview-title">
@@ -15,7 +15,7 @@ const appContent = `
     <div class="fleet-hero-mark" aria-hidden="true"><i class="bi bi-truck"></i></div>
   </section>
 
-  <section class="auth-shell placeholder-card p-4 p-md-5 mb-4 mb-lg-5" aria-labelledby="auth-title">
+  <section id="auth-section" class="auth-shell placeholder-card p-4 p-md-5 mb-4 mb-lg-5" aria-labelledby="auth-title">
     <div class="row g-4 align-items-start">
       <div class="col-lg-5">
         <p class="eyebrow mb-2">Secure access</p>
@@ -93,6 +93,12 @@ const appContent = `
     </div>
   </section>
 
+  <section id="signed-in-section" class="placeholder-card p-4 p-md-5 mb-4 mb-lg-5 d-none" aria-labelledby="signed-in-title">
+    <p class="eyebrow mb-2">Session active</p>
+    <h2 id="signed-in-title" class="h4">You are already signed in</h2>
+    <p id="signed-in-message" class="text-secondary mb-0">Your role-specific navigation is available above.</p>
+  </section>
+
   <section aria-labelledby="fleet-status-title" class="mb-4 mb-lg-5">
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
       <div>
@@ -156,6 +162,23 @@ const loginPanel = document.querySelector('#login-panel');
 const registerPanel = document.querySelector('#register-panel');
 const loginTab = document.querySelector('#login-tab');
 const registerTab = document.querySelector('#register-tab');
+const authSection = document.querySelector('#auth-section');
+const signedInSection = document.querySelector('#signed-in-section');
+const signedInMessage = document.querySelector('#signed-in-message');
+
+async function updateAuthVisibility() {
+  try {
+    const context = await getAuthenticatedContext();
+    if (!context.user) return;
+    authSection.classList.add('d-none');
+    signedInSection.classList.remove('d-none');
+    signedInMessage.textContent = `Signed in as ${context.user.email || 'your FleetPulse account'}. Your role-specific navigation is available above.`;
+  } catch (error) {
+    showToast(error.message, { title: 'Session unavailable', variant: 'warning' });
+  }
+}
+
+updateAuthVisibility();
 
 document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
   toggle.addEventListener('click', () => {
