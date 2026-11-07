@@ -47,7 +47,10 @@ const appContent = `
             </div>
             <div class="mb-3">
               <label class="form-label" for="login-password">Password</label>
-              <input class="form-control" id="login-password" type="password" autocomplete="current-password" minlength="8" required>
+              <div class="input-group">
+                <input class="form-control" id="login-password" type="password" autocomplete="current-password" minlength="8" required>
+                <button class="btn btn-outline-secondary password-toggle" type="button" data-password-toggle="#login-password" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Show password</span></button>
+              </div>
               <div class="invalid-feedback">Enter your password.</div>
             </div>
             <button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign in</button>
@@ -68,12 +71,18 @@ const appContent = `
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label" for="register-password">Password</label>
-                <input class="form-control" id="register-password" type="password" autocomplete="new-password" minlength="8" required>
+                <div class="input-group">
+                  <input class="form-control" id="register-password" type="password" autocomplete="new-password" minlength="8" required>
+                  <button class="btn btn-outline-secondary password-toggle" type="button" data-password-toggle="#register-password" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Show password</span></button>
+                </div>
                 <div class="invalid-feedback">Use at least 8 characters.</div>
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="register-confirm-password">Confirm password</label>
-                <input class="form-control" id="register-confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+                <div class="input-group">
+                  <input class="form-control" id="register-confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+                  <button class="btn btn-outline-secondary password-toggle" type="button" data-password-toggle="#register-confirm-password" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Show password</span></button>
+                </div>
                 <div class="invalid-feedback">Passwords must match.</div>
               </div>
             </div>
@@ -147,6 +156,19 @@ const loginPanel = document.querySelector('#login-panel');
 const registerPanel = document.querySelector('#register-panel');
 const loginTab = document.querySelector('#login-tab');
 const registerTab = document.querySelector('#register-tab');
+
+document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
+  toggle.addEventListener('click', () => {
+    const input = document.querySelector(toggle.dataset.passwordToggle);
+    if (!input) return;
+    const isVisible = input.type === 'text';
+    input.type = isVisible ? 'password' : 'text';
+    toggle.setAttribute('aria-pressed', String(!isVisible));
+    toggle.setAttribute('aria-label', `${isVisible ? 'Show' : 'Hide'} password`);
+    toggle.querySelector('i').className = `bi ${isVisible ? 'bi-eye' : 'bi-eye-slash'}`;
+    toggle.querySelector('.visually-hidden').textContent = `${isVisible ? 'Show' : 'Hide'} password`;
+  });
+});
 
 function showAuthPanel(panel) {
   const isRegister = panel === 'register';
