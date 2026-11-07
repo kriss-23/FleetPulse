@@ -55,6 +55,7 @@ const appContent = `
             </div>
             <button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign in</button>
             <a class="d-block mt-3 small" id="forgot-password-link" href="#forgot-password">Password forgotten?</a>
+            <div id="login-feedback" class="alert d-none mt-3 mb-0" role="alert" aria-live="polite"></div>
           </form>
         </div>
         <div id="forgot-password-panel" class="d-none" role="region" aria-labelledby="forgot-password-title">
@@ -66,6 +67,7 @@ const appContent = `
             <div class="invalid-feedback">Enter a valid email address.</div>
             <button class="btn btn-primary mt-3" type="submit">Send reset email</button>
             <a class="btn btn-link mt-3" href="#login">Back to sign in</a>
+            <div id="forgot-password-feedback" class="alert d-none mt-3 mb-0" role="alert" aria-live="polite"></div>
           </form>
         </div>
         <div id="reset-password-panel" class="d-none" role="region" aria-labelledby="reset-password-title">
@@ -185,6 +187,8 @@ const loginPanel = document.querySelector('#login-panel');
 const registerPanel = document.querySelector('#register-panel');
 const forgotPasswordPanel = document.querySelector('#forgot-password-panel');
 const resetPasswordPanel = document.querySelector('#reset-password-panel');
+const loginFeedback = document.querySelector('#login-feedback');
+const forgotPasswordFeedback = document.querySelector('#forgot-password-feedback');
 const loginTab = document.querySelector('#login-tab');
 const registerTab = document.querySelector('#register-tab');
 const authSection = document.querySelector('#auth-section');
@@ -239,6 +243,16 @@ function syncAuthHash() {
   showAuthPanel(['register', 'forgot-password', 'reset-password'].includes(hash) ? hash : 'login');
 }
 
+function showFormFeedback(element, message, variant = 'danger') {
+  element.textContent = message;
+  element.className = `alert alert-${variant} mt-3 mb-0`;
+}
+
+function clearFormFeedback(element) {
+  element.textContent = '';
+  element.className = 'alert d-none mt-3 mb-0';
+}
+
 window.addEventListener('hashchange', syncAuthHash);
 syncAuthHash();
 
@@ -269,7 +283,11 @@ function validateForm(form) {
 
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  if (!validateForm(loginForm)) return;
+  clearFormFeedback(loginFeedback);
+  if (!validateForm(loginForm)) {
+    showFormFeedback(loginFeedback, 'Enter a valid email address and password to sign in.');
+    return;
+  }
   const submitButton = loginForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   try {
@@ -282,7 +300,11 @@ loginForm.addEventListener('submit', async (event) => {
     showToast('Sign-in successful. Redirecting…', { title: 'Welcome', variant: 'success' });
     window.setTimeout(() => window.location.assign(getRoleRedirect(role)), 350);
   } catch (error) {
-    showToast(error.message, { title: 'Sign-in failed', variant: 'danger' });
+    const message = error.message.toLowerCase().includes('invalid login credentials')
+      ? 'The email address or password is incorrect. Check your details and try again.'
+      : error.message;
+    showFormFeedback(loginFeedback, message);
+    showToast(message, { title: 'Sign-in failed', variant: 'danger' });
     submitButton.disabled = false;
   }
 });
@@ -317,14 +339,21 @@ registerForm.addEventListener('submit', async (event) => {
 document.querySelector('#forgot-password-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
+  clearFormFeedback(forgotPasswordFeedback);
   form.classList.add('was-validated');
-  if (!form.checkValidity()) return;
+  if (!form.checkValidity()) {
+    showFormFeedback(forgotPasswordFeedback, 'Enter a valid email address to request a password reset.');
+    return;
+  }
   const button = form.querySelector('button[type="submit"]');
   button.disabled = true;
   try {
     await sendPasswordReset(document.querySelector('#forgot-password-email').value.trim());
-    showToast('If that email belongs to an account, a reset link has been sent.', { title: 'Check your email', variant: 'success' });
+    const message = 'If that email belongs to a FleetPulse account, a password-reset email has been sent. Check your inbox and spam folder.';
+    showFormFeedback(forgotPasswordFeedback, message, 'success');
+    showToast(message, { title: 'Check your email', variant: 'success' });
   } catch (error) {
+    showFormFeedback(forgotPasswordFeedback, error.message);
     showToast(error.message, { title: 'Reset request failed', variant: 'danger' });
   } finally {
     button.disabled = false;
