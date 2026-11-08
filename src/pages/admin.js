@@ -125,7 +125,8 @@ function renderPanel() {
 }
 
 function modal(id, title, body, submitLabel = 'Save changes') {
-  document.querySelector('#admin-modals').innerHTML = `<div class="modal fade" id="${id}" tabindex="-1" aria-labelledby="${id}-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form id="${id}-form"><div class="modal-header"><h2 class="modal-title h5" id="${id}-title">${title}</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body">${body}</div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit">${submitLabel}</button></div></form></div></div></div>`;
+  const language = id === 'assign-modal' ? ' lang="de-DE"' : '';
+  document.querySelector('#admin-modals').innerHTML = `<div class="modal fade" id="${id}"${language} tabindex="-1" aria-labelledby="${id}-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form id="${id}-form"><div class="modal-header"><h2 class="modal-title h5" id="${id}-title">${title}</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body">${body}</div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit">${submitLabel}</button></div></form></div></div></div>`;
   const element = document.querySelector(`#${id}`);
   const instance = Modal.getOrCreateInstance(element);
   instance.show();
@@ -141,8 +142,8 @@ function openAssign(vehicleId) {
     <p class="text-secondary">${escapeHtml(activeVehicle.license_plate)} · ${escapeHtml(activeVehicle.brand_model)}</p>
     <label class="form-label" for="assign-driver">Driver</label>
     <select class="form-select mb-3" id="assign-driver" required><option value="">Select a driver</option>${state.drivers.map((driver) => `<option value="${driver.id}" ${driver.id === activeVehicle.assigned_driver_id ? 'selected' : ''}>${escapeHtml(driver.full_name || 'Unnamed driver')}</option>`).join('')}</select>
-    <label class="form-label" for="assign-date">Shift date</label><input class="form-control mb-3" id="assign-date" type="date" value="${now.toISOString().slice(0, 10)}" required>
-    <div class="row g-3"><div class="col-6"><label class="form-label" for="assign-start">Starts</label><input class="form-control" id="assign-start" type="datetime-local" value="${dateTimeLocal(now)}" required></div><div class="col-6"><label class="form-label" for="assign-end">Ends</label><input class="form-control" id="assign-end" type="datetime-local" value="${dateTimeLocal(end)}" required></div></div>
+    <label class="form-label" for="assign-date">Shift date</label><input class="form-control mb-3" id="assign-date" type="date" lang="de-DE" value="${now.toISOString().slice(0, 10)}" required>
+    <div class="row g-3"><div class="col-6"><label class="form-label" for="assign-start">Starts</label><input class="form-control" id="assign-start" type="datetime-local" lang="de-DE" value="${dateTimeLocal(now)}" required></div><div class="col-6"><label class="form-label" for="assign-end">Ends</label><input class="form-control" id="assign-end" type="datetime-local" lang="de-DE" value="${dateTimeLocal(end)}" required></div></div>
   `, activeVehicle.assigned_driver_id ? 'Reassign driver' : 'Assign driver');
   element.querySelector('form').addEventListener('submit', async (event) => {
     event.preventDefault();
