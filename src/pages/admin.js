@@ -4,6 +4,7 @@ import { emptyState, loadingSkeleton, showToast } from '../components/feedback.j
 import { statusBadge } from '../components/status.js';
 import { escapeHtml } from '../utils/escape-html.js';
 import { assignVehicle, fetchAdminData, updateMaintenance, updateVehicleStatus } from '../services/admin-service.js';
+import { vehicleImage } from '../utils/vehicle-media.js';
 
 renderPage({
   eyebrow: 'Fleet management',
@@ -65,7 +66,7 @@ function renderPanel() {
           <thead><tr><th scope="col" aria-sort="${vehicleSort.key === 'license_plate' ? vehicleSort.direction : 'none'}">${sortButton('license_plate')}</th><th scope="col" aria-sort="${vehicleSort.key === 'status' ? vehicleSort.direction : 'none'}">${sortButton('status')}</th><th scope="col" aria-sort="${vehicleSort.key === 'assigned_driver' ? vehicleSort.direction : 'none'}">${sortButton('assigned_driver')}</th><th scope="col" aria-sort="${vehicleSort.key === 'mileage' ? vehicleSort.direction : 'none'}">${sortButton('mileage')}</th><th scope="col" class="text-end">Actions</th></tr></thead>
           <tbody>${sortedVehicles().map((vehicle) => `
             <tr>
-              <th scope="row"><span class="vehicle-plate">${escapeHtml(vehicle.license_plate)}</span><br><span class="text-secondary fw-normal">${escapeHtml(vehicle.brand_model)}</span></th>
+              <th scope="row"><div class="admin-vehicle-cell">${vehicleImage(vehicle, 'admin-vehicle-photo')}<span class="vehicle-plate">${escapeHtml(vehicle.license_plate)}</span><br><span class="text-secondary fw-normal">${escapeHtml(vehicle.brand_model)}</span></div></th>
               <td>${statusBadge(vehicle.status)}</td>
               <td>${escapeHtml(vehicle.assigned_driver?.full_name || 'Unassigned')}</td>
               <td>${Number(vehicle.mileage).toLocaleString()} km</td>

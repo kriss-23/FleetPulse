@@ -2,6 +2,7 @@ import { renderPage } from '../components/page-shell.js';
 import { emptyState, loadingSkeleton, showToast } from '../components/feedback.js';
 import { statusBadge } from '../components/status.js';
 import { escapeHtml } from '../utils/escape-html.js';
+import { vehicleImage } from '../utils/vehicle-media.js';
 import { fetchReportVehicle, submitDailyReport } from '../services/report-service.js';
 
 renderPage({
@@ -26,6 +27,7 @@ function renderReportForm(vehicle) {
     <div class="row g-4">
       <div class="col-lg-4">
         <article class="vehicle-card h-100">
+          ${vehicleImage(vehicle)}
           <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
             <div>
               <p class="vehicle-plate mb-1">${escapeHtml(vehicle.license_plate)}</p>

@@ -4,6 +4,7 @@ import { statusBadge } from '../components/status.js';
 import { escapeHtml } from '../utils/escape-html.js';
 import { fetchDriverFilterOptions, fetchFleetOverview } from '../services/fleet-service.js';
 import { getAuthenticatedContext, getRoleRedirect, getUserRole, sendPasswordReset, signIn, signUp, updatePassword } from '../services/auth.js';
+import { vehicleImage } from '../utils/vehicle-media.js';
 
 const appContent = `
   <section class="fleet-hero mb-4 mb-lg-5" aria-labelledby="fleet-overview-title">
@@ -432,6 +433,7 @@ function renderVehicles() {
       ${fleetOverview.vehicles.map((vehicle) => `
         <div class="col-md-6 col-xl-4">
           <article class="vehicle-card h-100">
+            ${vehicleImage(vehicle)}
             <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
               <div>
                 <p class="vehicle-plate mb-1">${escapeHtml(vehicle.license_plate)}</p>
