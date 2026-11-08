@@ -1,3 +1,4 @@
+import { Modal } from 'bootstrap';
 import { renderPage } from '../components/page-shell.js';
 import { emptyState, loadingSkeleton, showToast } from '../components/feedback.js';
 import { statusBadge } from '../components/status.js';
@@ -104,7 +105,7 @@ function renderPanel() {
 function modal(id, title, body, submitLabel = 'Save changes') {
   document.querySelector('#admin-modals').innerHTML = `<div class="modal fade" id="${id}" tabindex="-1" aria-labelledby="${id}-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form id="${id}-form"><div class="modal-header"><h2 class="modal-title h5" id="${id}-title">${title}</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body">${body}</div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit">${submitLabel}</button></div></form></div></div></div>`;
   const element = document.querySelector(`#${id}`);
-  const instance = window.bootstrap.Modal.getOrCreateInstance(element);
+  const instance = Modal.getOrCreateInstance(element);
   instance.show();
   return { element, instance };
 }

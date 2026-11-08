@@ -1,3 +1,5 @@
+import { Modal } from 'bootstrap';
+
 export function mountConfirmDialog() {
   if (document.querySelector('#confirm-dialog')) return;
   document.body.insertAdjacentHTML('beforeend', `
@@ -17,7 +19,7 @@ export function confirmAction({ title = 'Confirm action', message = 'Are you sur
   mountConfirmDialog();
   document.querySelector('#confirm-dialog-title').textContent = title;
   document.querySelector('#confirm-dialog-message').textContent = message;
-  const modal = window.bootstrap.Modal.getOrCreateInstance(document.querySelector('#confirm-dialog'));
+  const modal = Modal.getOrCreateInstance(document.querySelector('#confirm-dialog'));
   const submit = document.querySelector('#confirm-dialog-submit');
   submit.onclick = async () => {
     submit.disabled = true;

@@ -1,3 +1,5 @@
+import { Toast } from 'bootstrap';
+
 export function loadingSkeleton(rows = 3) {
   return `<div class="skeleton-list" aria-label="Loading content" aria-busy="true">${Array.from({ length: rows }, () => '<div class="skeleton-line"></div>').join('')}</div>`;
 }
@@ -32,7 +34,6 @@ export function showToast(message, { title = 'FleetPulse', variant = 'primary' }
   toast.setAttribute('role', 'alert');
   toast.innerHTML = `<div class="toast-header"><span class="toast-indicator bg-${escapeHtml(variant)} me-2"></span><strong class="me-auto">${escapeHtml(title)}</strong><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div><div class="toast-body">${escapeHtml(message)}</div>`;
   container.append(toast);
-  const instance = window.bootstrap?.Toast.getOrCreateInstance(toast, { delay: 5000 });
-  instance?.show();
+  Toast.getOrCreateInstance(toast, { delay: 5000 }).show();
 }
 import { escapeHtml } from '../utils/escape-html.js';
