@@ -33,8 +33,9 @@ export async function fetchAdminData() {
   const [vehiclesResult, driversResult, maintenanceResult] = await Promise.all([
     supabaseClient
       .from('vehicles')
-      .select('id, license_plate, brand_model, status, mileage, fuel_battery_level, assigned_driver_id, updated_at, assigned_driver:profiles!vehicles_assigned_driver_id_fkey(id, full_name)')
-      .order('license_plate'),
+      .select('id, license_plate, brand_model, status, mileage, fuel_battery_level, assigned_driver_id, updated_at, assigned_driver:profiles!vehicles_assigned_driver_id_fkey(id, full_name), inspections(passes_check, inspection_date, created_at)')
+      .order('license_plate')
+      .order('inspection_date', { foreignTable: 'inspections', ascending: false }),
     driverIds.length
       ? supabaseClient.from('profiles').select('id, full_name').in('id', driverIds).order('full_name')
       : Promise.resolve({ data: [], error: null }),

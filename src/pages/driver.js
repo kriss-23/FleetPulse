@@ -100,9 +100,9 @@ async function handleSubmit(event, vehicle) {
       passesCheck: document.querySelector('#passes-check').checked,
       photo: document.querySelector('#odometer-photo').files[0],
     });
+    const refreshedVehicle = await fetchAssignedVehicle(vehicle.id);
     showToast(`Inspection submitted for ${vehicle.license_plate}.`, { title: 'Inspection saved', variant: 'success' });
-    form.reset();
-    form.classList.remove('was-validated');
+    renderVehicle(refreshedVehicle || vehicle);
   } catch (error) {
     showToast(error.message, { title: 'Inspection failed', variant: 'danger' });
   } finally {

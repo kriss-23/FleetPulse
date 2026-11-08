@@ -44,6 +44,14 @@ function sortButton(key) {
   return `<button class="btn btn-link table-sort-button p-0 text-reset fw-bold" type="button" data-sort="${key}" aria-label="Sort ${vehicleSortLabels[key]} ${nextDirection === 'asc' ? 'ascending' : 'descending'}">${vehicleSortLabels[key]} <i class="bi ${icon}" aria-hidden="true"></i></button>`;
 }
 
+function inspectionSummary(vehicle) {
+  const inspection = vehicle.inspections?.[0];
+  if (!inspection) return '<span class="text-secondary">No inspection recorded</span>';
+  const result = inspection.passes_check ? 'Passed' : 'Failed';
+  const style = inspection.passes_check ? 'text-success' : 'text-danger';
+  return `<span class="${style}">${result}</span><br><span class="small text-secondary">${escapeHtml(inspection.inspection_date || 'Date unavailable')}</span>`;
+}
+
 function dateTimeLocal(date) {
   const value = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
   return value.toISOString().slice(0, 16);
@@ -59,26 +67,7 @@ function renderPanel() {
       <div><span class="badge text-bg-light">${state.vehicles.length} vehicles</span><span class="badge text-bg-warning ms-2">${state.maintenance.length} open maintenance requests</span></div>
       <button class="btn btn-outline-primary" type="button" id="refresh-admin"><i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh data</button>
     </div>
-    <div class="placeholder-card p-0 overflow-hidden mb-4">
-      <div class="table-responsive">
-        <table class="table align-middle mb-0">
-          <caption class="visually-hidden">Fleet vehicles and manager actions</caption>
-          <thead><tr><th scope="col" aria-sort="${vehicleSort.key === 'license_plate' ? vehicleSort.direction : 'none'}">${sortButton('license_plate')}</th><th scope="col" aria-sort="${vehicleSort.key === 'status' ? vehicleSort.direction : 'none'}">${sortButton('status')}</th><th scope="col" aria-sort="${vehicleSort.key === 'assigned_driver' ? vehicleSort.direction : 'none'}">${sortButton('assigned_driver')}</th><th scope="col" aria-sort="${vehicleSort.key === 'mileage' ? vehicleSort.direction : 'none'}">${sortButton('mileage')}</th><th scope="col" class="text-end">Actions</th></tr></thead>
-          <tbody>${sortedVehicles().map((vehicle) => `
-            <tr>
-              <th scope="row"><div class="admin-vehicle-cell">${vehicleImage(vehicle, 'admin-vehicle-photo')}<span class="vehicle-plate">${escapeHtml(vehicle.license_plate)}</span><br><span class="text-secondary fw-normal">${escapeHtml(vehicle.brand_model)}</span></div></th>
-              <td>${statusBadge(vehicle.status)}</td>
-              <td>${escapeHtml(vehicle.assigned_driver?.full_name || 'Unassigned')}</td>
-              <td>${Number(vehicle.mileage).toLocaleString()} km</td>
-              <td class="text-end"><div class="btn-group btn-group-sm" role="group" aria-label="Actions for ${escapeHtml(vehicle.license_plate)}">
-                <button class="btn btn-outline-primary" type="button" data-action="assign" data-id="${vehicle.id}"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>${vehicle.assigned_driver_id ? 'Reassign' : 'Assign'}</button>
-                <button class="btn btn-outline-secondary" type="button" data-action="status" data-id="${vehicle.id}">Status</button>
-              </div></td>
-            </tr>`).join('')}</tbody>
-        </table>
-      </div>
-    </div>
-    <section aria-labelledby="maintenance-heading">
+    <section aria-labelledby="maintenance-heading" class="mb-4">
       <h2 class="h4" id="maintenance-heading">Maintenance requests</h2>
       ${state.maintenance.length ? `<div class="row g-3">${state.maintenance.map((item) => `
         <div class="col-md-6 col-xl-4"><article class="vehicle-card h-100">
@@ -88,6 +77,26 @@ function renderPanel() {
           <button class="btn btn-sm btn-outline-primary" type="button" data-action="maintenance" data-id="${item.id}">Review request</button>
         </article></div>`).join('')}</div>` : emptyState({ icon: 'bi-wrench-adjustable-circle', title: 'No open maintenance requests', message: 'Pending and approved requests will appear here.' })}
     </section>
+    <div class="placeholder-card p-0 overflow-hidden mb-4">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <caption class="visually-hidden">Fleet vehicles and manager actions</caption>
+          <thead><tr><th scope="col" aria-sort="${vehicleSort.key === 'license_plate' ? vehicleSort.direction : 'none'}">${sortButton('license_plate')}</th><th scope="col" aria-sort="${vehicleSort.key === 'status' ? vehicleSort.direction : 'none'}">${sortButton('status')}</th><th scope="col" aria-sort="${vehicleSort.key === 'assigned_driver' ? vehicleSort.direction : 'none'}">${sortButton('assigned_driver')}</th><th scope="col">Latest inspection</th><th scope="col" aria-sort="${vehicleSort.key === 'mileage' ? vehicleSort.direction : 'none'}">${sortButton('mileage')}</th><th scope="col" class="text-end">Actions</th></tr></thead>
+          <tbody>${sortedVehicles().map((vehicle) => `
+            <tr>
+              <th scope="row"><div class="admin-vehicle-cell">${vehicleImage(vehicle, 'admin-vehicle-photo')}<span class="vehicle-plate">${escapeHtml(vehicle.license_plate)}</span><br><span class="text-secondary fw-normal">${escapeHtml(vehicle.brand_model)}</span></div></th>
+              <td>${statusBadge(vehicle.status)}</td>
+              <td>${escapeHtml(vehicle.assigned_driver?.full_name || 'Unassigned')}</td>
+              <td>${inspectionSummary(vehicle)}</td>
+              <td>${Number(vehicle.mileage).toLocaleString()} km</td>
+              <td class="text-end"><div class="btn-group btn-group-sm" role="group" aria-label="Actions for ${escapeHtml(vehicle.license_plate)}">
+                <button class="btn btn-outline-primary" type="button" data-action="assign" data-id="${vehicle.id}"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>${vehicle.assigned_driver_id ? 'Reassign' : 'Assign'}</button>
+                <button class="btn btn-outline-secondary" type="button" data-action="status" data-id="${vehicle.id}">Status</button>
+              </div></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
     <div id="admin-modals"></div>
   `;
   document.querySelector('#refresh-admin').addEventListener('click', load);
