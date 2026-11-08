@@ -500,6 +500,22 @@ async function loadOverview() {
 }
 
 try {
+  const context = await getAuthenticatedContext();
+  if (!context.user) {
+    summaryElement.innerHTML = emptyState({
+      icon: 'bi-lock',
+      title: 'Sign in to view fleet status',
+      message: 'Vehicle operations become available after authentication.',
+    });
+    listElement.innerHTML = emptyState({
+      icon: 'bi-truck',
+      title: 'Sign in to view vehicles',
+      message: 'Use the sign-in form above to access the fleet overview.',
+    });
+    updatedElement.textContent = 'Sign-in required';
+    throw new Error('__FLEETPULSE_ANONYMOUS__');
+  }
+
   const params = new URLSearchParams(window.location.search);
   const urlStatus = params.get('status');
   const urlDriver = params.get('driver');
@@ -511,10 +527,12 @@ try {
   if (urlSort && urlDirection) sortElement.value = `${urlSort}:${urlDirection}`;
 
   let drivers = [];
-  try {
-    drivers = await fetchDriverFilterOptions();
-  } catch (error) {
-    showToast('Assigned-driver filters are unavailable for this role.', { title: 'Limited fleet filters', variant: 'warning' });
+  if (context.role === 'manager') {
+    try {
+      drivers = await fetchDriverFilterOptions();
+    } catch (error) {
+      drivers = [];
+    }
   }
   drivers.forEach((driver) => {
     const option = document.createElement('option');
@@ -532,12 +550,14 @@ try {
   sortElement.addEventListener('change', loadOverview);
   await loadOverview();
 } catch (error) {
-  summaryElement.innerHTML = emptyState({
-    icon: 'bi-database-exclamation',
-    title: 'Fleet data unavailable',
-    message: 'Sign in with an authorized FleetPulse role to view vehicle operations.',
-  });
-  listElement.innerHTML = emptyState({ icon: 'bi-database-exclamation', title: 'Fleet data unavailable', message: error.message });
-  updatedElement.textContent = 'Live data unavailable';
-  showToast(error.message, { title: 'Fleet data error', variant: 'danger' });
+  if (error.message !== '__FLEETPULSE_ANONYMOUS__') {
+    summaryElement.innerHTML = emptyState({
+      icon: 'bi-database-exclamation',
+      title: 'Fleet data unavailable',
+      message: 'Sign in with an authorized FleetPulse role to view vehicle operations.',
+    });
+    listElement.innerHTML = emptyState({ icon: 'bi-database-exclamation', title: 'Fleet data unavailable', message: error.message });
+    updatedElement.textContent = 'Live data unavailable';
+    showToast(error.message, { title: 'Fleet data error', variant: 'danger' });
+  }
 }
