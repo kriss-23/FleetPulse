@@ -28,10 +28,18 @@ function inspectionSortButton(key, label) {
 
 function formatInspectionDateTime(value) {
   if (!value) return '—';
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value));
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(new Date(value)).reduce((result, part) => {
+    result[part.type] = part.value;
+    return result;
+  }, {});
+  return `${parts.day} ${parts.month} ${parts.year}, ${parts.hour}:${parts.minute}`;
 }
 
 function renderVehicle(vehicle) {
@@ -55,6 +63,7 @@ function renderVehicle(vehicle) {
       <td>${escapeHtml(formatInspectionDateTime(item.created_at || item.inspection_date))}</td>
       <td><span class="${item.passes_check ? 'text-success' : 'text-danger'}">${item.passes_check ? 'Passed' : 'Failed'}</span></td>
       <td>${Number(item.odometer_reading || 0).toLocaleString()} km</td>
+      <td>${item.photo_url ? `<a href="${escapeHtml(item.photo_url)}" target="_blank" rel="noopener noreferrer"><img class="inspection-photo" src="${escapeHtml(item.photo_url)}" alt="Odometer photo from ${escapeHtml(formatInspectionDateTime(item.created_at || item.inspection_date))}" loading="lazy"></a>` : '<span class="text-secondary">No photo</span>'}</td>
     </tr>
   `).join('');
   content.innerHTML = `
@@ -119,7 +128,7 @@ function renderVehicle(vehicle) {
         </div>
         <span class="badge text-bg-light">${inspections.length} record${inspections.length === 1 ? '' : 's'}</span>
       </div>
-      ${inspections.length ? `<div class="table-responsive"><table class="table align-middle mb-0"><caption class="visually-hidden">Submitted vehicle inspections</caption><thead><tr><th scope="col" aria-sort="${inspectionSort.key === 'created_at' ? inspectionSort.direction : 'none'}">${inspectionSortButton('created_at', 'Date & time')}</th><th scope="col" aria-sort="${inspectionSort.key === 'passes_check' ? inspectionSort.direction : 'none'}">${inspectionSortButton('passes_check', 'Result')}</th><th scope="col" aria-sort="${inspectionSort.key === 'odometer_reading' ? inspectionSort.direction : 'none'}">${inspectionSortButton('odometer_reading', 'Odometer')}</th></tr></thead><tbody>${inspectionRows}</tbody></table></div>` : '<p class="text-secondary mb-0">No inspections have been submitted for this vehicle yet.</p>'}
+      ${inspections.length ? `<div class="table-responsive"><table class="table align-middle mb-0"><caption class="visually-hidden">Submitted vehicle inspections</caption><thead><tr><th scope="col" aria-sort="${inspectionSort.key === 'created_at' ? inspectionSort.direction : 'none'}">${inspectionSortButton('created_at', 'Date & time')}</th><th scope="col" aria-sort="${inspectionSort.key === 'passes_check' ? inspectionSort.direction : 'none'}">${inspectionSortButton('passes_check', 'Result')}</th><th scope="col" aria-sort="${inspectionSort.key === 'odometer_reading' ? inspectionSort.direction : 'none'}">${inspectionSortButton('odometer_reading', 'Odometer')}</th><th scope="col">Photo</th></tr></thead><tbody>${inspectionRows}</tbody></table></div>` : '<p class="text-secondary mb-0">No inspections have been submitted for this vehicle yet.</p>'}
     </section>
   `;
   content.querySelectorAll('[data-inspection-sort]').forEach((button) => button.addEventListener('click', () => {

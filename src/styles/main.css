@@ -97,6 +97,7 @@ a:focus-visible, button:focus-visible, .form-control:focus-visible, .form-select
 .consent-banner p { color: var(--fp-muted); }
 .table-sort-button { white-space: nowrap; }
 .table-sort-button:hover { color: var(--fp-brand) !important; }
+.inspection-photo { display: block; width: 4.5rem; height: 3.25rem; object-fit: cover; border: 1px solid var(--fp-border); border-radius: var(--fp-radius-sm); }
 .vehicle-photo { overflow: hidden; border: 1px solid var(--fp-border); border-radius: var(--fp-radius-sm); background: var(--fp-canvas); }
 .vehicle-photo img { display: block; width: 100%; height: 10rem; object-fit: cover; }
 .vehicle-photo figcaption { padding: .3rem .55rem; color: var(--fp-muted); font-size: .7rem; }

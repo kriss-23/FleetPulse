@@ -28,13 +28,24 @@ export async function fetchAssignedVehicle(vehicleId = null) {
       mileage,
       fuel_battery_level,
       vehicle_cargo_profiles (cargo_type, max_cargo_kg, current_cargo_kg, load_status),
-      inspections (passes_check, odometer_reading, inspection_date, created_at)
+      inspections (passes_check, odometer_reading, inspection_date, created_at, odometer_photo_url)
     `)
     .eq(canViewSelectedVehicle ? 'id' : 'assigned_driver_id', canViewSelectedVehicle ? vehicleId : user.id)
     .order('inspection_date', { foreignTable: 'inspections', ascending: false })
     .maybeSingle();
 
   if (error) throw new Error(`Assigned vehicle could not be loaded: ${error.message}`);
+  if (data?.inspections?.length) {
+    const inspections = await Promise.all(data.inspections.map(async (inspection) => {
+      if (!inspection.odometer_photo_url) return inspection;
+      const { data: signedPhoto, error: signedPhotoError } = await supabaseClient.storage
+        .from(BUCKET)
+        .createSignedUrl(inspection.odometer_photo_url, 300);
+      if (signedPhotoError) throw new Error(`Inspection photo could not be loaded: ${signedPhotoError.message}`);
+      return { ...inspection, photo_url: signedPhoto.signedUrl };
+    }));
+    data.inspections = inspections;
+  }
   return data || null;
 }
 
