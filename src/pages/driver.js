@@ -31,7 +31,7 @@ function formatInspectionDateTime(value) {
   const parts = new Intl.DateTimeFormat('en-GB', {
     day: '2-digit',
     month: '2-digit',
-    year: '2-digit',
+    year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
     hourCycle: 'h23',
@@ -39,7 +39,7 @@ function formatInspectionDateTime(value) {
     result[part.type] = part.value;
     return result;
   }, {});
-  return `${parts.day} ${parts.month} ${parts.year}, ${parts.hour}:${parts.minute}`;
+  return `${parts.month}.${parts.day}.${parts.year}, ${parts.hour}:${parts.minute}`;
 }
 
 function renderVehicle(vehicle) {
