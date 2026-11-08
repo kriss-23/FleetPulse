@@ -57,15 +57,24 @@ function dateTimeLocal(date) {
   return value.toISOString().slice(0, 16);
 }
 
+function formatRequestDate(value) {
+  if (!value) return 'Date unavailable';
+  const date = new Date(value);
+  const pad = (part) => String(part).padStart(2, '0');
+  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}, ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 function renderPanel() {
   if (!state.vehicles.length) {
     content.innerHTML = emptyState({ icon: 'bi-truck', title: 'No vehicles found', message: 'Fleet vehicles will appear here when they are available.' });
     return;
   }
+  const pendingRequests = state.maintenance.filter((item) => item.status === 'pending').length;
+  const approvedRequests = state.maintenance.filter((item) => item.status === 'approved').length;
   const mobileVehicleCards = sortedVehicles().map((vehicle) => `<article class="data-card"><div class="data-card-heading">${vehicleImage(vehicle, 'admin-vehicle-photo')}<div><strong>${escapeHtml(vehicle.license_plate)}</strong><span>${escapeHtml(vehicle.brand_model)}</span></div></div><div><span class="data-card-label">Status</span>${statusBadge(vehicle.status)}</div><div><span class="data-card-label">Assigned driver</span><strong>${escapeHtml(vehicle.assigned_driver?.full_name || 'Unassigned')}</strong></div><div><span class="data-card-label">Latest inspection</span>${inspectionSummary(vehicle)}</div><div><span class="data-card-label">Mileage</span><strong>${Number(vehicle.mileage).toLocaleString()} km</strong></div><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary" type="button" data-action="assign" data-id="${vehicle.id}">${vehicle.assigned_driver_id ? 'Reassign' : 'Assign'}</button><button class="btn btn-outline-secondary" type="button" data-action="status" data-id="${vehicle.id}">Status</button></div></article>`).join('');
   content.innerHTML = `
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-      <div><span class="badge text-bg-light">${state.vehicles.length} vehicles</span><span class="badge text-bg-warning ms-2">${state.maintenance.length} open maintenance requests</span></div>
+      <div><span class="badge text-bg-light">${state.vehicles.length} vehicles</span><span class="badge text-bg-warning ms-2">${state.maintenance.length} open maintenance requests</span><span class="badge text-bg-light ms-2">${pendingRequests} pending · ${approvedRequests} approved</span></div>
       <button class="btn btn-outline-primary" type="button" id="refresh-admin"><i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh data</button>
     </div>
     <section aria-labelledby="maintenance-heading" class="mb-4">
@@ -74,6 +83,7 @@ function renderPanel() {
         <div class="col-md-6 col-xl-4"><article class="vehicle-card h-100">
           <div class="d-flex justify-content-between gap-2"><h3 class="h5">${escapeHtml(item.vehicle?.license_plate || 'Vehicle')}</h3><span class="badge text-bg-${item.status === 'approved' ? 'success' : 'warning'}">${escapeHtml(item.status)}</span></div>
           <p class="text-secondary mb-2">${escapeHtml(item.vehicle?.brand_model || '')}</p>
+          <p class="small text-secondary mb-2">Created ${escapeHtml(formatRequestDate(item.created_at))}</p>
           <p class="mb-3">Service cost: <strong>${Number(item.service_cost || 0).toFixed(2)} €</strong></p>
           <button class="btn btn-sm btn-outline-primary" type="button" data-action="maintenance" data-id="${item.id}">Review request</button>
         </article></div>`).join('')}</div>` : emptyState({ icon: 'bi-wrench-adjustable-circle', title: 'No open maintenance requests', message: 'Pending and approved requests will appear here.' })}
