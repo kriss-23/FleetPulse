@@ -29,12 +29,12 @@ vehicles
 |---|---|---|
 | `profiles` | User-facing profile details linked to `auth.users` | Users can view their own profile; managers can view operational profiles |
 | `user_roles` | Server-controlled role assignment | Role helper reads this table; editable signup metadata is never trusted |
-| `vehicles` | Fleet identity, readiness, mileage, and fuel/battery snapshot | Status and assignment changes use manager RPCs |
+| `vehicles` | Fleet identity, energy type, readiness, mileage, and fuel/battery snapshot | Status and assignment changes use manager RPCs |
 | `inspections` | Driver pre-trip check-in and odometer evidence | Driver submissions use `submit_inspection` |
 | `daily_reports` | End-of-shift metrics and issue reports | Driver submissions use `submit_daily_report`; nine-hour limit is enforced server-side |
 | `maintenance_logs` | Service costs, invoice references, and approval state | Accountants/managers read; managers update through `approve_maintenance` |
 | `vehicle_assignments` | Time-bounded driver/vehicle assignments | GiST exclusion constraint prevents overlapping active assignments |
-| `fuel_consumption_logs` | Exact numeric fuel/battery consumption costs | Accountant and manager read access |
+| `fuel_consumption_logs` | Exact numeric fuel consumption, litre volume, and euro costs | Accountant and manager read access |
 
 ## Server-side integrity
 
@@ -49,6 +49,10 @@ vehicles
   exceed nine hours.
 - Mutation RPCs use request IDs for idempotency and reject payload reuse.
 - Maintenance and fuel calculations use PostgreSQL numeric arithmetic.
+- Maintenance service costs, fuel costs, and combined expenses are reported in
+  euros; fuel volume is reported in litres.
+- The demo fleet uses an `energy_type` value of `combustion` or `electric` so
+  fuel and battery labels remain accurate.
 - Status changes create audit records.
 
 ## Storage
@@ -61,5 +65,6 @@ Invoice access in the browser uses five-minute signed URLs.
 ## Migrations
 
 All schema and policy changes are committed under
-[supabase/migrations](../supabase/migrations). The local migration filenames
-are synchronized with the hosted Supabase migration history.
+[supabase/migrations](../supabase/migrations). The local migration filenames and hosted migration history should be checked
+after each deployment; the committed SQL remains the source of truth for
+reprovisioning the project.

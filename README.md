@@ -26,7 +26,8 @@ deployment values to this repository.
 - **Fleet Manager:** vehicle status, driver assignment/reassignment, and
   maintenance approval/completion.
 - **Accountant:** read-only maintenance invoices and exact monthly maintenance
-  and fuel expense totals.
+  and fuel expense totals. Maintenance and expense amounts are shown in euros;
+  fuel usage is shown in litres.
 - **Warehouse Specialist:** role is supported in the access model and demo
   seed; warehouse workflows are intentionally limited to the current
   milestone scope.
@@ -51,6 +52,43 @@ The application uses separate HTML entry points:
 Server-side policies and RPCs are the authorization source of truth. Client
 role checks only control presentation and provide an early user-friendly
 error. The browser only reads `VITE_SUPABASE_URL` and a publishable/anon key.
+
+## Fleet and financial data conventions
+
+- The demo fleet contains five combustion vehicles and one electric vehicle
+  (`Renault Kangoo E-Tech`).
+- Vehicle cards label the percentage value as **Fuel** or **Battery** according
+  to the vehicle energy type.
+- Maintenance service costs, fuel costs, and total fleet expenses are
+  expressed in euros (`€`).
+- Monthly fuel volume is expressed in litres (`L`).
+- Maintenance requests with `pending` or `approved` status remain open until
+  they are marked `completed`.
+
+## Cybersecurity review
+
+A repository security audit was performed on the current FleetPulse
+implementation. No actionable vulnerabilities were identified in the reviewed
+code and configuration.
+
+The review verified that:
+
+- `.env` is ignored and not tracked, and privileged credentials are not
+  exposed in browser code.
+- The frontend uses only the Supabase URL and publishable/anon key.
+- Supabase tables use Row-Level Security with role and ownership predicates.
+- Privileged RPCs use restricted execution grants, fixed search paths, and
+  role checks.
+- Storage buckets are private and use scoped access policies.
+- User-controlled content is escaped before rendering.
+- Production dependencies passed `npm audit --omit=dev --audit-level=high`.
+- The deployment includes HSTS and `X-Content-Type-Options: nosniff`.
+
+This review did not replace live penetration testing. Authenticated production
+flows, effective hosted RLS behavior, storage policies, session revocation,
+and deployed environment-variable values should be rechecked before a
+production launch. Any privileged credential that has ever been shared or
+exposed should be rotated.
 
 ## Database overview
 
@@ -126,4 +164,5 @@ service-role key to Render frontend environment variables. See
 - [Database schema](./docs/database-schema.md)
 - [Deployment guide](./docs/deployment.md)
 - [Demo seed guide](./docs/seed-guide.md)
+- [Cybersecurity review](./docs/security-audit.md)
 - [Agent instructions](./.github/copilot-instructions.md)

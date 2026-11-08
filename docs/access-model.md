@@ -31,6 +31,22 @@ RLS policies, RPC authorization, and Storage policies.
 - Keep all privileged development and migration tools separate from browser application access.
 - Never expose service-role keys, secret keys, database passwords, or other privileged credentials in frontend code or `VITE_` environment variables.
 
+## Security review status
+
+The current repository was reviewed for common application security risks.
+No actionable vulnerabilities were found in the reviewed implementation.
+Verified controls include ignored and untracked `.env` files, publishable-only
+browser credentials, RLS policies with role or ownership predicates,
+restricted privileged RPCs with role checks and fixed search paths, private
+Storage buckets, escaped user-controlled output, dependency audit results with
+no high-severity production vulnerabilities, and deployment security headers
+including HSTS and `X-Content-Type-Options: nosniff`.
+
+This is a repository-level review, not a substitute for live penetration
+testing. Hosted RLS behavior, authenticated production flows, session
+revocation, Storage policies, and deployed environment values should be
+verified again before production release.
+
 ## Current Project State
 
 The configured Supabase project reference is `skfnptxtjmsjehikrlma`. The
