@@ -25,7 +25,6 @@ const appContent = `
         <div class="demo-card">
           <p class="eyebrow mb-2">Evaluator access</p>
           <h3 class="h6">🚀 Quick Demo Login</h3>
-          <p class="small text-secondary">Fill a seeded demo account into the sign-in form. The demo password is read from <code>VITE_DEMO_PASSWORD</code>.</p>
           <div class="demo-login-grid">
             <div class="demo-role">
               <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="manager"><i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>View Manager demo</button>
