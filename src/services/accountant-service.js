@@ -43,15 +43,11 @@ export async function fetchAccountantData(invoiceId = null, vehicleId = null) {
   if (invoiceId && !UUID_PATTERN.test(invoiceId)) throw new Error('The invoice_id parameter is invalid.');
   if (vehicleId && !UUID_PATTERN.test(vehicleId)) throw new Error('The vehicle_id parameter is invalid.');
   const range = monthRange();
-  const maintenanceQuery = supabaseClient
-    .from('maintenance_logs')
-    .select('id, vehicle_id, report_id, service_cost, invoice_pdf_url, status, created_at, updated_at, vehicle:vehicles!maintenance_logs_vehicle_id_fkey(license_plate, brand_model)')
-    .order('created_at', { ascending: false });
-  if (invoiceId) maintenanceQuery.eq('id', invoiceId);
-  if (vehicleId) maintenanceQuery.eq('vehicle_id', vehicleId);
-
   const [maintenanceResult, summaryResult] = await Promise.all([
-    maintenanceQuery,
+    supabaseClient.rpc('get_accountant_maintenance_records', {
+      p_invoice_id: invoiceId,
+      p_vehicle_id: vehicleId,
+    }),
     supabaseClient.rpc('get_monthly_fleet_expense_summary', {
       p_month_start: range.start,
       p_month_end: range.end,
@@ -60,7 +56,13 @@ export async function fetchAccountantData(invoiceId = null, vehicleId = null) {
   if (maintenanceResult.error) throw new Error(`Maintenance records could not be loaded: ${maintenanceResult.error.message}`);
   if (summaryResult.error) throw new Error(`Expense summary could not be loaded: ${summaryResult.error.message}`);
   return {
-    maintenance: maintenanceResult.data || [],
+    maintenance: (maintenanceResult.data || []).map((record) => ({
+      ...record,
+      vehicle: {
+        license_plate: record.license_plate,
+        brand_model: record.brand_model,
+      },
+    })),
     summary: summaryResult.data,
     monthLabel: new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' }).format(new Date(`${range.start}T00:00:00`)),
   };
