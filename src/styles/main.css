@@ -73,7 +73,7 @@ a:focus-visible, button:focus-visible, .form-control:focus-visible, .form-select
 .vehicle-alerts i { margin-right: .25rem; }
 .vehicle-links { display: flex; flex-wrap: wrap; gap: .75rem; border-top: 1px solid var(--fp-border); padding-top: .75rem; font-size: .82rem; font-weight: 650; }
 .vehicle-links a { text-decoration: none; }
-.page-bottom-button { position: fixed; right: 1rem; bottom: 1rem; z-index: 1000; display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px; box-shadow: var(--fp-shadow); }
+.page-bottom-button { position: fixed; right: 1rem; bottom: 1rem; z-index: 1000; display: inline-flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; padding: 0; border-radius: 50%; box-shadow: var(--fp-shadow); }
 .auth-shell { overflow: hidden; }
 .demo-card { padding: 1rem; border: 1px solid var(--fp-border); border-radius: var(--fp-radius-sm); background: color-mix(in srgb, var(--fp-brand) 7%, var(--fp-surface)); }
 .demo-login-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }

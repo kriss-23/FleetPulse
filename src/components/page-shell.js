@@ -28,7 +28,7 @@ export function renderPage({ title, description, eyebrow, content, user = null, 
       </main>
       ${renderFooter()}
       <a class="page-bottom-button btn btn-primary" href="#page-bottom" aria-label="Go to page bottom">
-        <i class="bi bi-arrow-down" aria-hidden="true"></i><span>Bottom</span>
+        <i class="bi bi-arrow-down" aria-hidden="true"></i>
       </a>
     </div>
   `;
