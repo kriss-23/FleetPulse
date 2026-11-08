@@ -27,7 +27,7 @@ function roleLabel(role) {
 
 function buildLinks(user, role) {
   if (!user) return publicLinks;
-  const links = [...authenticatedLinks];
+  const links = authenticatedLinks.filter(([label]) => label !== 'Driver View' || role === 'driver');
   if (role === 'manager') links.push(['Fleet Manager Panel', '/admin.html', 'bi-truck']);
   if (role === 'accountant') links.push(['Accountant Portal', '/accountant.html', 'bi-receipt']);
   return links;
