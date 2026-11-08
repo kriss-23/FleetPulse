@@ -447,12 +447,13 @@ function renderVehicles() {
               <div>
                 <p class="vehicle-plate mb-1">${escapeHtml(vehicle.license_plate)}</p>
                 <h3 class="h5 mb-0">${escapeHtml(vehicle.brand_model)}</h3>
+                <span class="small text-secondary">${vehicle.energy_type === 'electric' ? 'Electric vehicle' : 'Combustion vehicle'}</span>
               </div>
               ${statusBadge(vehicle.status)}
             </div>
             <dl class="vehicle-details mb-0">
               <div><dt>Mileage</dt><dd>${Number(vehicle.mileage).toLocaleString()} km</dd></div>
-              <div><dt>Fuel / battery</dt><dd>${vehicle.fuel_battery_level}%</dd></div>
+              <div><dt>${vehicle.energy_type === 'electric' ? 'Battery' : 'Fuel'}</dt><dd>${vehicle.fuel_battery_level}%</dd></div>
               <div><dt>Assigned driver</dt><dd>${escapeHtml(vehicle.assigned_driver_name || 'Unassigned')}</dd></div>
               <div><dt>Cargo capacity</dt><dd>${vehicle.cargo ? `${Number(vehicle.cargo.max_cargo_kg).toLocaleString()} kg` : 'Not recorded'}</dd></div>
             </dl>
