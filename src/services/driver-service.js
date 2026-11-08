@@ -32,7 +32,6 @@ export async function fetchAssignedVehicle(vehicleId = null) {
     `)
     .eq(canViewSelectedVehicle ? 'id' : 'assigned_driver_id', canViewSelectedVehicle ? vehicleId : user.id)
     .order('inspection_date', { foreignTable: 'inspections', ascending: false })
-    .limit(1)
     .maybeSingle();
 
   if (error) throw new Error(`Assigned vehicle could not be loaded: ${error.message}`);

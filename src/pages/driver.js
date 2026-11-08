@@ -19,6 +19,14 @@ const content = document.querySelector('#driver-content');
 function renderVehicle(vehicle) {
   const cargo = vehicle.vehicle_cargo_profiles?.[0];
   const inspection = vehicle.inspections?.[0];
+  const inspections = vehicle.inspections || [];
+  const inspectionRows = inspections.map((item) => `
+    <tr>
+      <td>${escapeHtml(item.inspection_date || '—')}</td>
+      <td><span class="${item.passes_check ? 'text-success' : 'text-danger'}">${item.passes_check ? 'Passed' : 'Failed'}</span></td>
+      <td>${Number(item.odometer_reading || 0).toLocaleString()} km</td>
+    </tr>
+  `).join('');
   content.innerHTML = `
     <div class="row g-4">
       <div class="col-lg-5">
@@ -73,6 +81,16 @@ function renderVehicle(vehicle) {
         </article>
       </div>
     </div>
+    <section class="placeholder-card p-4 mt-4" aria-labelledby="inspection-history-heading">
+      <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+        <div>
+          <p class="eyebrow mb-2">Saved submissions</p>
+          <h2 class="h4 mb-0" id="inspection-history-heading">Inspection history</h2>
+        </div>
+        <span class="badge text-bg-light">${inspections.length} record${inspections.length === 1 ? '' : 's'}</span>
+      </div>
+      ${inspections.length ? `<div class="table-responsive"><table class="table align-middle mb-0"><caption class="visually-hidden">Submitted vehicle inspections</caption><thead><tr><th scope="col">Date</th><th scope="col">Result</th><th scope="col">Odometer</th></tr></thead><tbody>${inspectionRows}</tbody></table></div>` : '<p class="text-secondary mb-0">No inspections have been submitted for this vehicle yet.</p>'}
+    </section>
   `;
   document.querySelector('#inspection-form').addEventListener('submit', (event) => handleSubmit(event, vehicle));
 }
