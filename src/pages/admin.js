@@ -52,9 +52,32 @@ function inspectionSummary(vehicle) {
   return `<span class="${style}">${result}</span><br><span class="small text-secondary">${escapeHtml(inspection.inspection_date || 'Date unavailable')}</span>`;
 }
 
-function dateTimeLocal(date) {
-  const value = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return value.toISOString().slice(0, 16);
+function formatAssignmentDate(date) {
+  const pad = (part) => String(part).padStart(2, '0');
+  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}`;
+}
+
+function formatAssignmentDateTime(date) {
+  const pad = (part) => String(part).padStart(2, '0');
+  return `${formatAssignmentDate(date)}, ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function parseAssignmentDate(value) {
+  const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value.trim());
+  if (!match) return null;
+  const [, day, month, year] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  if (date.getFullYear() !== Number(year) || date.getMonth() !== Number(month) - 1 || date.getDate() !== Number(day)) return null;
+  return `${year}-${month}-${day}`;
+}
+
+function parseAssignmentDateTime(value) {
+  const match = /^(\d{2})\.(\d{2})\.(\d{4}),\s(\d{2}):(\d{2})$/.exec(value.trim());
+  if (!match) return null;
+  const [, day, month, year, hours, minutes] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day), Number(hours), Number(minutes));
+  if (date.getFullYear() !== Number(year) || date.getMonth() !== Number(month) - 1 || date.getDate() !== Number(day) || date.getHours() !== Number(hours) || date.getMinutes() !== Number(minutes)) return null;
+  return date.toISOString();
 }
 
 function formatRequestDate(value) {
@@ -142,15 +165,19 @@ function openAssign(vehicleId) {
     <p class="text-secondary">${escapeHtml(activeVehicle.license_plate)} · ${escapeHtml(activeVehicle.brand_model)}</p>
     <label class="form-label" for="assign-driver">Driver</label>
     <select class="form-select mb-3" id="assign-driver" required><option value="">Select a driver</option>${state.drivers.map((driver) => `<option value="${driver.id}" ${driver.id === activeVehicle.assigned_driver_id ? 'selected' : ''}>${escapeHtml(driver.full_name || 'Unnamed driver')}</option>`).join('')}</select>
-    <label class="form-label" for="assign-date">Shift date</label><input class="form-control mb-3" id="assign-date" type="date" lang="de-DE" value="${now.toISOString().slice(0, 10)}" required>
-    <div class="row g-3"><div class="col-6"><label class="form-label" for="assign-start">Starts</label><input class="form-control" id="assign-start" type="datetime-local" lang="de-DE" value="${dateTimeLocal(now)}" required></div><div class="col-6"><label class="form-label" for="assign-end">Ends</label><input class="form-control" id="assign-end" type="datetime-local" lang="de-DE" value="${dateTimeLocal(end)}" required></div></div>
+    <label class="form-label" for="assign-date">Shift date</label><input class="form-control mb-3" id="assign-date" type="text" inputmode="numeric" autocomplete="off" placeholder="DD.MM.YYYY" pattern="\\d{2}\\.\\d{2}\\.\\d{4}" value="${formatAssignmentDate(now)}" required>
+    <div class="row g-3"><div class="col-6"><label class="form-label" for="assign-start">Starts</label><input class="form-control" id="assign-start" type="text" inputmode="numeric" autocomplete="off" placeholder="DD.MM.YYYY, HH:mm" pattern="\\d{2}\\.\\d{2}\\.\\d{4},\\s\\d{2}:\\d{2}" value="${formatAssignmentDateTime(now)}" required></div><div class="col-6"><label class="form-label" for="assign-end">Ends</label><input class="form-control" id="assign-end" type="text" inputmode="numeric" autocomplete="off" placeholder="DD.MM.YYYY, HH:mm" pattern="\\d{2}\\.\\d{2}\\.\\d{4},\\s\\d{2}:\\d{2}" value="${formatAssignmentDateTime(end)}" required></div></div>
   `, activeVehicle.assigned_driver_id ? 'Reassign driver' : 'Assign driver');
   element.querySelector('form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const button = event.currentTarget.querySelector('button[type="submit"]');
     button.disabled = true;
     try {
-      await assignVehicle({ vehicleId, driverId: element.querySelector('#assign-driver').value, shiftDate: element.querySelector('#assign-date').value, shiftStartedAt: new Date(element.querySelector('#assign-start').value).toISOString(), shiftEndedAt: new Date(element.querySelector('#assign-end').value).toISOString(), reassign: Boolean(activeVehicle.assigned_driver_id) });
+      const shiftDate = parseAssignmentDate(element.querySelector('#assign-date').value);
+      const shiftStartedAt = parseAssignmentDateTime(element.querySelector('#assign-start').value);
+      const shiftEndedAt = parseAssignmentDateTime(element.querySelector('#assign-end').value);
+      if (!shiftDate || !shiftStartedAt || !shiftEndedAt) throw new Error('Use DD.MM.YYYY for the date and DD.MM.YYYY, HH:mm for the start and end times.');
+      await assignVehicle({ vehicleId, driverId: element.querySelector('#assign-driver').value, shiftDate, shiftStartedAt, shiftEndedAt, reassign: Boolean(activeVehicle.assigned_driver_id) });
       instance.hide(); showToast('Driver assignment saved.', { title: 'Assignment updated', variant: 'success' }); await load();
     } catch (error) { showToast(error.message, { title: 'Assignment failed', variant: 'danger' }); } finally { button.disabled = false; }
   });
