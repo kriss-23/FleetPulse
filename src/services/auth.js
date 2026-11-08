@@ -46,6 +46,21 @@ export async function updatePassword(password) {
 
 export async function deleteCurrentAccount() {
   requireSupabase();
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Your session has expired. Sign in again.');
+
+  const { data: files, error: listError } = await supabaseClient.storage
+    .from('fleet-uploads')
+    .list(user.id, { limit: 1000 });
+  if (listError) throw new Error(`Account files could not be prepared for deletion: ${listError.message}`);
+  const filePaths = (files || [])
+    .filter((file) => file.name)
+    .map((file) => `${user.id}/${file.name}`);
+  if (filePaths.length) {
+    const { error: removeError } = await supabaseClient.storage.from('fleet-uploads').remove(filePaths);
+    if (removeError) throw new Error(`Account files could not be deleted: ${removeError.message}`);
+  }
+
   const { data, error } = await supabaseClient.rpc('delete_current_account');
   if (error) throw new Error(error.message);
   if (!data?.deleted) throw new Error('Your account could not be deleted.');
