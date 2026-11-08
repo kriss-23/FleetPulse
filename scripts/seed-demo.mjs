@@ -37,8 +37,8 @@ const accounts = [
   { key: 'manager', email: 'manager.demo@fleetpulse.local', name: 'Morgan Fleet Manager', role: 'manager' },
   { key: 'accountant', email: 'accountant.demo@fleetpulse.local', name: 'Avery Accountant', role: 'accountant' },
   { key: 'warehouse', email: 'warehouse.demo@fleetpulse.local', name: 'Jordan Warehouse Specialist', role: 'warehouse' },
-  { key: 'driverOne', email: 'driver.one.demo@fleetpulse.local', name: 'Casey Driver', role: 'driver' },
-  { key: 'driverTwo', email: 'driver.two.demo@fleetpulse.local', name: 'Riley Driver', role: 'driver' },
+  { key: 'driverOne', email: 'driver.one.demo@fleetpulse.local', name: 'Casey Bennett', role: 'driver' },
+  { key: 'driverTwo', email: 'driver.two.demo@fleetpulse.local', name: 'Riley Harper', role: 'driver' },
 ];
 
 const vehicles = [

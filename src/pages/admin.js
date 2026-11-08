@@ -15,6 +15,32 @@ const content = document.querySelector('#admin-content');
 let state = { vehicles: [], drivers: [], maintenance: [] };
 let activeVehicle = null;
 let activeMaintenance = null;
+let vehicleSort = { key: 'license_plate', direction: 'asc' };
+
+const vehicleSortLabels = {
+  license_plate: 'Vehicle',
+  status: 'Status',
+  assigned_driver: 'Assigned driver',
+  mileage: 'Mileage',
+};
+
+function sortedVehicles() {
+  return [...state.vehicles].sort((left, right) => {
+    const leftValue = left[vehicleSort.key] ?? (vehicleSort.key === 'assigned_driver' ? left.assigned_driver?.full_name : '');
+    const rightValue = right[vehicleSort.key] ?? (vehicleSort.key === 'assigned_driver' ? right.assigned_driver?.full_name : '');
+    const comparison = typeof leftValue === 'number' && typeof rightValue === 'number'
+      ? leftValue - rightValue
+      : String(leftValue).localeCompare(String(rightValue), undefined, { sensitivity: 'base', numeric: true });
+    return vehicleSort.direction === 'asc' ? comparison : -comparison;
+  });
+}
+
+function sortButton(key) {
+  const active = vehicleSort.key === key;
+  const nextDirection = active && vehicleSort.direction === 'asc' ? 'desc' : 'asc';
+  const icon = active ? (vehicleSort.direction === 'asc' ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up';
+  return `<button class="btn btn-link table-sort-button p-0 text-reset fw-bold" type="button" data-sort="${key}" aria-label="Sort ${vehicleSortLabels[key]} ${nextDirection === 'asc' ? 'ascending' : 'descending'}">${vehicleSortLabels[key]} <i class="bi ${icon}" aria-hidden="true"></i></button>`;
+}
 
 function dateTimeLocal(date) {
   const value = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -35,8 +61,8 @@ function renderPanel() {
       <div class="table-responsive">
         <table class="table align-middle mb-0">
           <caption class="visually-hidden">Fleet vehicles and manager actions</caption>
-          <thead><tr><th scope="col">Vehicle</th><th scope="col">Status</th><th scope="col">Assigned driver</th><th scope="col">Mileage</th><th scope="col" class="text-end">Actions</th></tr></thead>
-          <tbody>${state.vehicles.map((vehicle) => `
+          <thead><tr><th scope="col" aria-sort="${vehicleSort.key === 'license_plate' ? vehicleSort.direction : 'none'}">${sortButton('license_plate')}</th><th scope="col" aria-sort="${vehicleSort.key === 'status' ? vehicleSort.direction : 'none'}">${sortButton('status')}</th><th scope="col" aria-sort="${vehicleSort.key === 'assigned_driver' ? vehicleSort.direction : 'none'}">${sortButton('assigned_driver')}</th><th scope="col" aria-sort="${vehicleSort.key === 'mileage' ? vehicleSort.direction : 'none'}">${sortButton('mileage')}</th><th scope="col" class="text-end">Actions</th></tr></thead>
+          <tbody>${sortedVehicles().map((vehicle) => `
             <tr>
               <th scope="row"><span class="vehicle-plate">${escapeHtml(vehicle.license_plate)}</span><br><span class="text-secondary fw-normal">${escapeHtml(vehicle.brand_model)}</span></th>
               <td>${statusBadge(vehicle.status)}</td>
@@ -63,6 +89,13 @@ function renderPanel() {
     <div id="admin-modals"></div>
   `;
   document.querySelector('#refresh-admin').addEventListener('click', load);
+  content.querySelectorAll('[data-sort]').forEach((button) => button.addEventListener('click', () => {
+    const key = button.dataset.sort;
+    vehicleSort = vehicleSort.key === key
+      ? { key, direction: vehicleSort.direction === 'asc' ? 'desc' : 'asc' }
+      : { key, direction: 'asc' };
+    renderPanel();
+  }));
   content.querySelectorAll('[data-action="assign"]').forEach((button) => button.addEventListener('click', () => openAssign(button.dataset.id)));
   content.querySelectorAll('[data-action="status"]').forEach((button) => button.addEventListener('click', () => openStatus(button.dataset.id)));
   content.querySelectorAll('[data-action="maintenance"]').forEach((button) => button.addEventListener('click', () => openMaintenance(button.dataset.id)));
