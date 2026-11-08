@@ -45,8 +45,11 @@ Reruns are idempotent for seeded records. Existing Auth users are reused,
 their passwords are not changed, and their email addresses are confirmed
 without sending email. Existing unrelated records are preserved.
 
-The seed includes active, scheduled-maintenance, and urgent-repair vehicles,
-cargo profiles, historical inspections, a report over nine driving hours for
-the alert UI, pending/approved maintenance records, and demo invoice PDFs.
+The seed includes five combustion vehicles and one electric vehicle, active,
+scheduled-maintenance, and urgent-repair statuses, cargo profiles, historical
+inspections, a report over nine driving hours for the alert UI,
+pending/approved maintenance records, and demo invoice PDFs. Maintenance and
+fuel costs are stored as numeric euro amounts; fuel consumption is stored as
+litre volume plus its euro cost.
 Missing image asset filenames are reported; the script never stores fabricated
 external URLs.

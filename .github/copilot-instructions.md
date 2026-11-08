@@ -22,6 +22,10 @@ description: "Project-wide FleetPulse instructions for vanilla JavaScript, Vite,
 - Organize reusable code into shared components, services, and utilities.
 - Keep authorization and booking integrity enforced by Supabase database policies and constraints, not only by client-side checks.
 - Keep committed SQL migrations synchronized with the remote migration history.
+- Keep financial display units explicit: maintenance, fuel, and total expense
+  amounts use euros; fuel volume uses litres.
+- Mark vehicle energy type explicitly as `combustion` or `electric` so fuel and
+  battery labels are not interchangeable.
 
 ## Security and Data Handling
 
@@ -30,6 +34,8 @@ description: "Project-wide FleetPulse instructions for vanilla JavaScript, Vite,
 - Render user-controlled content safely; do not inject untrusted strings as raw HTML.
 - Define and maintain Row Level Security policies for the five application tables.
 - Surface validation, authentication, storage, and database errors explicitly using the project’s established UI and logging patterns.
+- Preserve private Storage buckets, scoped policies, restricted RPC grants,
+  safe output escaping, and publishable-only browser credentials.
 
 ## Product Rules
 

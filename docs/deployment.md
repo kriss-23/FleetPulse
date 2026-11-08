@@ -39,3 +39,9 @@ local server-side seed `.env` file.
 6. Verify that direct access to manager/accountant pages without the correct
    role shows an access error and exposes no protected data.
 7. Test a driver image upload and an accountant signed invoice link.
+8. Verify the accountant portal displays service costs and total expenses in
+   euros, fuel volume in litres, and invoice timestamps as
+   `DD.MM.YYYY, HH:MM`.
+9. Run the repository security checks documented in
+   [docs/security-audit.md](./security-audit.md). Treat the current audit as a
+   repository review, not a replacement for live penetration testing.

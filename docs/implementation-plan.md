@@ -1,8 +1,11 @@
 # FleetPulse Implementation Plan
 
-## Purpose
+## Purpose and current status
 
 FleetPulse is a multi-page logistics dashboard for managing company vehicles, service logs, driver assignments, inspection checklists, daily reports, and invoices. This plan defines the implementation sequence for the capstone project.
+
+The planned milestones are implemented in the current repository. This document
+also serves as the scope and verification reference for future changes.
 
 ## Technology Baseline
 
@@ -76,6 +79,11 @@ Planned screens:
 - Implement invoice-related views and workflows for Accountant users.
 - Restrict financial records through database policies and role checks.
 - Add clear loading, error, and empty states.
+- Display maintenance and total expense amounts in euros and fuel volume in
+  litres.
+- Provide private signed invoice PDF links and ascending/descending sorting for
+  vehicle, service cost, status, created date, and updated date.
+- Use `DD.MM.YYYY, HH:MM` with 24-hour time for invoice timestamps.
 
 **Exit criteria:** Accountants can perform only permitted invoice operations and other roles cannot access protected financial data.
 
@@ -83,6 +91,8 @@ Planned screens:
 
 - Run targeted checks, linting, and the production build.
 - Verify all multi-page routes, role boundaries, RLS behavior, storage rules, and responsive accessibility.
+- Review client credential exposure, safe rendering, dependency audit status,
+  privileged RPC grants, Storage privacy, and deployment security headers.
 - Configure Render Static Site deployment using documented environment variables.
 - Review the final diff and commit only milestone-related changes.
 
