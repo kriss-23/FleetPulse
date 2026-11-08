@@ -74,7 +74,7 @@ function renderPanel() {
         <div class="col-md-6 col-xl-4"><article class="vehicle-card h-100">
           <div class="d-flex justify-content-between gap-2"><h3 class="h5">${escapeHtml(item.vehicle?.license_plate || 'Vehicle')}</h3><span class="badge text-bg-${item.status === 'approved' ? 'success' : 'warning'}">${escapeHtml(item.status)}</span></div>
           <p class="text-secondary mb-2">${escapeHtml(item.vehicle?.brand_model || '')}</p>
-          <p class="mb-3">Service cost: <strong>${Number(item.service_cost || 0).toFixed(2)}</strong></p>
+          <p class="mb-3">Service cost: <strong>${Number(item.service_cost || 0).toFixed(2)} €</strong></p>
           <button class="btn btn-sm btn-outline-primary" type="button" data-action="maintenance" data-id="${item.id}">Review request</button>
         </article></div>`).join('')}</div>` : emptyState({ icon: 'bi-wrench-adjustable-circle', title: 'No open maintenance requests', message: 'Pending and approved requests will appear here.' })}
     </section>
@@ -153,7 +153,7 @@ function openStatus(vehicleId) {
 
 function openMaintenance(maintenanceId) {
   activeMaintenance = state.maintenance.find((item) => item.id === maintenanceId);
-  const { element, instance } = modal('maintenance-modal', 'Review maintenance request', `<p class="text-secondary">${escapeHtml(activeMaintenance.vehicle?.license_plate || '')} · ${escapeHtml(activeMaintenance.vehicle?.brand_model || '')}</p><label class="form-label" for="maintenance-status">Decision</label><select class="form-select mb-3" id="maintenance-status" required><option value="approved">Approve for service</option><option value="completed">Mark completed</option></select><label class="form-label" for="maintenance-cost">Total service cost</label><input class="form-control" id="maintenance-cost" type="number" min="0" step="0.01" value="${Number(activeMaintenance.service_cost || 0)}" required>`);
+  const { element, instance } = modal('maintenance-modal', 'Review maintenance request', `<p class="text-secondary">${escapeHtml(activeMaintenance.vehicle?.license_plate || '')} · ${escapeHtml(activeMaintenance.vehicle?.brand_model || '')}</p><label class="form-label" for="maintenance-status">Decision</label><select class="form-select mb-3" id="maintenance-status" required><option value="approved">Approve for service</option><option value="completed">Mark completed</option></select><label class="form-label" for="maintenance-cost">Total service cost (€)</label><input class="form-control" id="maintenance-cost" type="number" min="0" step="0.01" value="${Number(activeMaintenance.service_cost || 0)}" required>`);
   element.querySelector('form').addEventListener('submit', async (event) => { event.preventDefault(); const button = event.currentTarget.querySelector('button[type="submit"]'); button.disabled = true; try { await updateMaintenance({ maintenanceId, status: element.querySelector('#maintenance-status').value, serviceCost: Number(element.querySelector('#maintenance-cost').value) }); instance.hide(); showToast('Maintenance request updated.', { title: 'Maintenance saved', variant: 'success' }); await load(); } catch (error) { showToast(error.message, { title: 'Maintenance update failed', variant: 'danger' }); } finally { button.disabled = false; } });
 }
 
