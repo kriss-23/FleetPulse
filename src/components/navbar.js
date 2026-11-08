@@ -1,3 +1,4 @@
+import { Dropdown, Modal } from 'bootstrap';
 import { escapeHtml } from '../utils/escape-html.js';
 import { deleteCurrentAccount, getAuthenticatedContext, signOut, updatePassword } from '../services/auth.js';
 import { showToast } from './feedback.js';
@@ -41,12 +42,13 @@ export function renderNavbar({ user = null, role = null, profile = null } = {}) 
   `).join('');
   const accountLinks = user ? `
     <li class="nav-item dropdown">
-      <button class="nav-link dropdown-toggle btn btn-link" data-bs-toggle="dropdown" aria-expanded="false">
+      <button class="nav-link dropdown-toggle btn btn-link" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="bi bi-person-circle" aria-hidden="true"></i><span>Account</span>
       </button>
       <ul class="dropdown-menu dropdown-menu-end">
         <li><span class="dropdown-item-text small">${escapeHtml(roleLabel(role))}</span></li>
         <li><hr class="dropdown-divider"></li>
+        <li><button class="dropdown-item" type="button" data-action="view-account"><i class="bi bi-person-vcard me-2" aria-hidden="true"></i>View account</button></li>
         <li><button class="dropdown-item" type="button" data-action="change-password"><i class="bi bi-key me-2" aria-hidden="true"></i>Change password</button></li>
         <li><button class="dropdown-item text-danger" type="button" data-action="delete-account"><i class="bi bi-person-x me-2" aria-hidden="true"></i>Delete account</button></li>
         <li><button class="dropdown-item" type="button" data-action="logout"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Log out</button></li>
@@ -85,6 +87,12 @@ export async function initializeNavbar() {
   try {
     const context = await getAuthenticatedContext();
     header.outerHTML = renderNavbar(context);
+    document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach((toggle) => {
+      Dropdown.getOrCreateInstance(toggle);
+    });
+    document.querySelector('[data-action="view-account"]')?.addEventListener('click', () => {
+      showAccountModal(context);
+    });
     const logoutButton = document.querySelector('[data-action="logout"]');
     logoutButton?.addEventListener('click', async () => {
       try {
@@ -129,6 +137,31 @@ export async function initializeNavbar() {
   } catch (error) {
     showToast(error.message, { title: 'Session unavailable', variant: 'warning' });
   }
+}
+
+function showAccountModal({ user, role, profile }) {
+  const modalId = 'account-details-modal';
+  document.querySelector(`#${modalId}`)?.remove();
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="${modalId}-title" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5" id="${modalId}-title">Your FleetPulse account</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <dl class="row mb-0">
+              <dt class="col-sm-4">Name</dt><dd class="col-sm-8">${escapeHtml(profile?.full_name || user?.user_metadata?.full_name || 'Not provided')}</dd>
+              <dt class="col-sm-4">Email</dt><dd class="col-sm-8">${escapeHtml(user?.email || 'Not provided')}</dd>
+              <dt class="col-sm-4">Role</dt><dd class="col-sm-8">${escapeHtml(roleLabel(role))}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+  Modal.getOrCreateInstance(document.querySelector(`#${modalId}`)).show();
 }
 
 function showAccountFeedback(message, variant) {
