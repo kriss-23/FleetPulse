@@ -65,6 +65,15 @@ error. The browser only reads `VITE_SUPABASE_URL` and a publishable/anon key.
 - Maintenance requests with `pending` or `approved` status remain open until
   they are marked `completed`.
 
+## Database overview
+
+The core schema includes `profiles`, `user_roles`, `vehicles`, `inspections`,
+`daily_reports`, and `maintenance_logs`. The reporting engine also uses
+`vehicle_assignments`, `vehicle_status_audits`, `fuel_consumption_logs`, and
+request-idempotency records. See
+[docs/database-schema.md](./docs/database-schema.md) for relationships,
+constraints, indexes, and RLS boundaries.
+
 ## Cybersecurity review
 
 A repository security audit was performed on the current FleetPulse
@@ -89,15 +98,6 @@ flows, effective hosted RLS behavior, storage policies, session revocation,
 and deployed environment-variable values should be rechecked before a
 production launch. Any privileged credential that has ever been shared or
 exposed should be rotated.
-
-## Database overview
-
-The core schema includes `profiles`, `user_roles`, `vehicles`, `inspections`,
-`daily_reports`, and `maintenance_logs`. The reporting engine also uses
-`vehicle_assignments`, `vehicle_status_audits`, `fuel_consumption_logs`, and
-request-idempotency records. See
-[docs/database-schema.md](./docs/database-schema.md) for relationships,
-constraints, indexes, and RLS boundaries.
 
 ## Local development
 
