@@ -275,10 +275,6 @@ document.querySelectorAll('[data-demo-role]').forEach((button) => {
     document.querySelector('#login-email').value = demoEmails[button.dataset.demoRole];
     const demoPassword = import.meta.env.VITE_DEMO_PASSWORD;
     if (demoPassword) document.querySelector('#login-password').value = demoPassword;
-    showToast(
-      demoPassword ? 'Demo credentials filled. Select Sign in to continue.' : 'Demo email filled. Set VITE_DEMO_PASSWORD to fill the password automatically.',
-      { title: 'Quick Demo Login', variant: 'info' }
-    );
   });
 });
 
