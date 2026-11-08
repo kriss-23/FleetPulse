@@ -27,10 +27,22 @@ const appContent = `
           <h3 class="h6">🚀 Quick Demo Login</h3>
           <p class="small text-secondary">Fill a seeded demo account into the sign-in form. The demo password is read from <code>VITE_DEMO_PASSWORD</code>.</p>
           <div class="demo-login-grid">
-            <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="manager">Fleet Manager</button>
-            <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="accountant">Accountant</button>
-            <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="warehouse">Warehouse Specialist</button>
-            <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="driver">Driver</button>
+            <div class="demo-role">
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="manager">Fleet Manager</button>
+              <p>Manage vehicles, assignments, statuses, and maintenance requests.</p>
+            </div>
+            <div class="demo-role">
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="accountant">Accountant</button>
+              <p>Review maintenance invoices, fuel costs, and fleet expenses.</p>
+            </div>
+            <div class="demo-role">
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="warehouse">Warehouse Specialist</button>
+              <p>Check vehicle availability, cargo details, and operational readiness.</p>
+            </div>
+            <div class="demo-role">
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="driver">Driver</button>
+              <p>Complete inspections, submit reports, and record vehicle issues.</p>
+            </div>
           </div>
         </div>
       </div>

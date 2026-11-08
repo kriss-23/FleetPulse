@@ -77,6 +77,8 @@ a:focus-visible, button:focus-visible, .form-control:focus-visible, .form-select
 .auth-shell { overflow: hidden; }
 .demo-card { padding: 1rem; border: 1px solid var(--fp-border); border-radius: var(--fp-radius-sm); background: color-mix(in srgb, var(--fp-brand) 7%, var(--fp-surface)); }
 .demo-login-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.demo-role { display: grid; gap: .35rem; }
+.demo-role p { margin: 0; color: var(--fp-muted); font-size: .75rem; line-height: 1.4; }
 .accordion-item { border-color: var(--fp-border); background: var(--fp-surface); }
 .accordion-button { color: var(--fp-ink); background: var(--fp-surface); }
 .accordion-button:not(.collapsed) { color: var(--fp-brand-dark); background: color-mix(in srgb, var(--fp-brand) 8%, var(--fp-surface)); box-shadow: none; }
