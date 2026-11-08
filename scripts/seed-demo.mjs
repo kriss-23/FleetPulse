@@ -399,13 +399,39 @@ async function seedData() {
   ];
   await upsertRows('daily_reports', reportRows);
 
+  const fuelRows = [
+    {
+      id: stableUuid('fuel:fp-102:2026-11-06'),
+      vehicle_id: vehicleByKey.get('activeTruck').id,
+      driver_id: users.driverTwo.id,
+      report_id: reportRows[1].id,
+      shift_date: '2026-11-06',
+      starting_level: 92,
+      ending_level: 64,
+      consumed_level: 28,
+      unit_cost: 1.72,
+    },
+    {
+      id: stableUuid('fuel:fp-101:2026-11-05'),
+      vehicle_id: vehicleByKey.get('activeVan').id,
+      driver_id: users.driverOne.id,
+      report_id: reportRows[0].id,
+      shift_date: '2026-11-05',
+      starting_level: 96,
+      ending_level: 78,
+      consumed_level: 18,
+      unit_cost: 1.68,
+    },
+  ];
+  await upsertRows('fuel_consumption_logs', fuelRows);
+
   const maintenanceRows = [
     {
       id: stableUuid('maintenance:fp-301'),
       vehicle_id: vehicleByKey.get('repairTruck').id,
       report_id: reportRows[2].id,
       service_cost: 1840.5,
-      invoice_pdf_url: assets.invoiceTruck ?? null,
+      invoice_pdf_url: assets.invoiceTruck ?? '',
       status: 'pending',
     },
     {
@@ -413,12 +439,11 @@ async function seedData() {
       vehicle_id: vehicleByKey.get('repairVan').id,
       report_id: null,
       service_cost: 925.75,
-      invoice_pdf_url: assets.invoiceVan ?? null,
+      invoice_pdf_url: assets.invoiceVan ?? '',
       status: 'approved',
     },
-  ].filter((row) => row.invoice_pdf_url);
+  ];
   await upsertRows('maintenance_logs', maintenanceRows);
-  counts.skipped += 2 - maintenanceRows.length;
 }
 
 console.log(`${dryRun ? 'DRY RUN' : 'SEED'}: FleetPulse demo project ${EXPECTED_PROJECT_REF}`);
