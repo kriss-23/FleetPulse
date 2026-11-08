@@ -41,6 +41,7 @@ function summarizeVehicle(vehicle) {
   const alerts = maintenanceLogs.filter((log) => ['pending', 'approved'].includes(log.status));
 
   return {
+    id: vehicle.id,
     license_plate: vehicle.license_plate,
     brand_model: vehicle.brand_model,
     status: vehicle.status,
@@ -102,6 +103,7 @@ export async function fetchFleetOverview(options = {}) {
   let query = supabaseClient
     .from('vehicles')
     .select(`
+      id,
       license_plate,
       brand_model,
       status,

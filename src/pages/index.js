@@ -451,9 +451,9 @@ function renderVehicles() {
               ${vehicle.maintenance_alerts.length ? `<span class="small text-warning-emphasis"><i class="bi bi-tools" aria-hidden="true"></i> ${vehicle.maintenance_alerts.length} maintenance alert${vehicle.maintenance_alerts.length === 1 ? '' : 's'}</span>` : ''}
             </div>
             <div class="vehicle-links mt-3" aria-label="Vehicle workflows">
-              <a href="/driver.html?license_plate=${encodeURIComponent(vehicle.license_plate)}">Inspections</a>
-              <a href="/report.html?license_plate=${encodeURIComponent(vehicle.license_plate)}">Daily reports</a>
-              <a href="/accountant.html?license_plate=${encodeURIComponent(vehicle.license_plate)}">Service history</a>
+              <a href="/driver.html?vehicle_id=${encodeURIComponent(vehicle.id)}">Inspections</a>
+              <a href="/report.html?vehicle_id=${encodeURIComponent(vehicle.id)}">Daily reports</a>
+              <a href="/accountant.html?vehicle_id=${encodeURIComponent(vehicle.id)}">Service history</a>
             </div>
           </article>
         </div>

@@ -1,5 +1,5 @@
 import { supabaseClient } from './supabase-client.js';
-import { getCurrentUser } from './auth.js';
+import { getAuthenticatedContext, getCurrentUser } from './auth.js';
 
 const BUCKET = 'fleet-uploads';
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -12,9 +12,11 @@ function requireSupabase() {
 
 export async function fetchAssignedVehicle(vehicleId = null) {
   requireSupabase();
-  const user = await getCurrentUser();
+  const context = await getAuthenticatedContext();
+  const user = context.user;
   if (!user) throw new Error('Sign in to view your assigned vehicle.');
   if (vehicleId && !UUID_PATTERN.test(vehicleId)) throw new Error('The vehicle_id parameter is invalid.');
+  const canViewSelectedVehicle = Boolean(vehicleId && ['manager', 'warehouse', 'accountant'].includes(context.role));
 
   const { data, error } = await supabaseClient
     .from('vehicles')
@@ -28,8 +30,7 @@ export async function fetchAssignedVehicle(vehicleId = null) {
       vehicle_cargo_profiles (cargo_type, max_cargo_kg, current_cargo_kg, load_status),
       inspections (passes_check, odometer_reading, inspection_date, created_at)
     `)
-    .eq('assigned_driver_id', user.id)
-    .eq(vehicleId ? 'id' : 'assigned_driver_id', vehicleId || user.id)
+    .eq(canViewSelectedVehicle ? 'id' : 'assigned_driver_id', canViewSelectedVehicle ? vehicleId : user.id)
     .order('inspection_date', { foreignTable: 'inspections', ascending: false })
     .limit(1)
     .maybeSingle();

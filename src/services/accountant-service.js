@@ -38,15 +38,17 @@ function parseInvoiceReference(reference) {
   return { bucket, path };
 }
 
-export async function fetchAccountantData(invoiceId = null) {
+export async function fetchAccountantData(invoiceId = null, vehicleId = null) {
   await requireAccountingAccess();
   if (invoiceId && !UUID_PATTERN.test(invoiceId)) throw new Error('The invoice_id parameter is invalid.');
+  if (vehicleId && !UUID_PATTERN.test(vehicleId)) throw new Error('The vehicle_id parameter is invalid.');
   const range = monthRange();
   const maintenanceQuery = supabaseClient
     .from('maintenance_logs')
     .select('id, vehicle_id, report_id, service_cost, invoice_pdf_url, status, created_at, updated_at, vehicle:vehicles!maintenance_logs_vehicle_id_fkey(license_plate, brand_model)')
     .order('created_at', { ascending: false });
   if (invoiceId) maintenanceQuery.eq('id', invoiceId);
+  if (vehicleId) maintenanceQuery.eq('vehicle_id', vehicleId);
 
   const [maintenanceResult, summaryResult] = await Promise.all([
     maintenanceQuery,

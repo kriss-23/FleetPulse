@@ -77,7 +77,7 @@ function renderPortal(data) {
 async function load() {
   content.innerHTML = loadingSkeleton(5);
   try {
-    renderPortal(await fetchAccountantData(selectedQueryValue('invoice_id')));
+    renderPortal(await fetchAccountantData(selectedQueryValue('invoice_id'), selectedQueryValue('vehicle_id')));
   } catch (error) {
     content.innerHTML = emptyState({ icon: 'bi-shield-lock', title: 'Accountant access required', message: error.message });
     showToast(error.message, { title: 'Accountant portal unavailable', variant: 'danger' });
