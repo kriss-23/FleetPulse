@@ -87,9 +87,7 @@ export async function initializeNavbar() {
   try {
     const context = await getAuthenticatedContext();
     header.outerHTML = renderNavbar(context);
-    document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach((toggle) => {
-      Dropdown.getOrCreateInstance(toggle);
-    });
+    initializeAccountDropdown();
     document.querySelector('[data-action="view-account"]')?.addEventListener('click', () => {
       showAccountModal(context);
     });
@@ -137,6 +135,23 @@ export async function initializeNavbar() {
   } catch (error) {
     showToast(error.message, { title: 'Session unavailable', variant: 'warning' });
   }
+}
+
+function initializeAccountDropdown() {
+  const toggle = document.querySelector('[data-bs-toggle="dropdown"]');
+  const menu = toggle?.closest('.dropdown')?.querySelector('.dropdown-menu');
+  if (!toggle || !menu) return;
+  const dropdown = Dropdown.getOrCreateInstance(toggle);
+  toggle.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dropdown.toggle();
+  });
+  menu.addEventListener('click', (event) => event.stopPropagation());
+  document.addEventListener('click', () => dropdown.hide(), { once: false });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') dropdown.hide();
+  });
 }
 
 function showAccountModal({ user, role, profile }) {
