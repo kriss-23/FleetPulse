@@ -15,14 +15,44 @@ renderPage({
 });
 
 const content = document.querySelector('#driver-content');
+let inspectionSort = { key: 'created_at', direction: 'desc' };
+
+function inspectionSortButton(key, label) {
+  const active = inspectionSort.key === key;
+  const nextDirection = active && inspectionSort.direction === 'asc' ? 'desc' : 'asc';
+  const icon = active
+    ? (inspectionSort.direction === 'asc' ? 'bi-sort-up' : 'bi-sort-down')
+    : 'bi-arrow-down-up';
+  return `<button class="btn btn-link table-sort-button p-0 text-reset fw-bold" type="button" data-inspection-sort="${key}" aria-label="Sort ${label} ${nextDirection === 'asc' ? 'ascending' : 'descending'}">${label} <i class="bi ${icon}" aria-hidden="true"></i></button>`;
+}
+
+function formatInspectionDateTime(value) {
+  if (!value) return '—';
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
+}
 
 function renderVehicle(vehicle) {
   const cargo = vehicle.vehicle_cargo_profiles?.[0];
   const inspection = vehicle.inspections?.[0];
   const inspections = vehicle.inspections || [];
-  const inspectionRows = inspections.map((item) => `
+  const sortedInspections = [...inspections].sort((left, right) => {
+    let comparison;
+    if (inspectionSort.key === 'odometer_reading') {
+      comparison = Number(left.odometer_reading || 0) - Number(right.odometer_reading || 0);
+    } else if (inspectionSort.key === 'passes_check') {
+      comparison = Number(Boolean(left.passes_check)) - Number(Boolean(right.passes_check));
+    } else {
+      comparison = new Date(left.created_at || left.inspection_date).getTime()
+        - new Date(right.created_at || right.inspection_date).getTime();
+    }
+    return inspectionSort.direction === 'asc' ? comparison : -comparison;
+  });
+  const inspectionRows = sortedInspections.map((item) => `
     <tr>
-      <td>${escapeHtml(item.inspection_date || '—')}</td>
+      <td>${escapeHtml(formatInspectionDateTime(item.created_at || item.inspection_date))}</td>
       <td><span class="${item.passes_check ? 'text-success' : 'text-danger'}">${item.passes_check ? 'Passed' : 'Failed'}</span></td>
       <td>${Number(item.odometer_reading || 0).toLocaleString()} km</td>
     </tr>
@@ -89,9 +119,16 @@ function renderVehicle(vehicle) {
         </div>
         <span class="badge text-bg-light">${inspections.length} record${inspections.length === 1 ? '' : 's'}</span>
       </div>
-      ${inspections.length ? `<div class="table-responsive"><table class="table align-middle mb-0"><caption class="visually-hidden">Submitted vehicle inspections</caption><thead><tr><th scope="col">Date</th><th scope="col">Result</th><th scope="col">Odometer</th></tr></thead><tbody>${inspectionRows}</tbody></table></div>` : '<p class="text-secondary mb-0">No inspections have been submitted for this vehicle yet.</p>'}
+      ${inspections.length ? `<div class="table-responsive"><table class="table align-middle mb-0"><caption class="visually-hidden">Submitted vehicle inspections</caption><thead><tr><th scope="col" aria-sort="${inspectionSort.key === 'created_at' ? inspectionSort.direction : 'none'}">${inspectionSortButton('created_at', 'Date & time')}</th><th scope="col" aria-sort="${inspectionSort.key === 'passes_check' ? inspectionSort.direction : 'none'}">${inspectionSortButton('passes_check', 'Result')}</th><th scope="col" aria-sort="${inspectionSort.key === 'odometer_reading' ? inspectionSort.direction : 'none'}">${inspectionSortButton('odometer_reading', 'Odometer')}</th></tr></thead><tbody>${inspectionRows}</tbody></table></div>` : '<p class="text-secondary mb-0">No inspections have been submitted for this vehicle yet.</p>'}
     </section>
   `;
+  content.querySelectorAll('[data-inspection-sort]').forEach((button) => button.addEventListener('click', () => {
+    const key = button.dataset.inspectionSort;
+    inspectionSort = inspectionSort.key === key
+      ? { key, direction: inspectionSort.direction === 'asc' ? 'desc' : 'asc' }
+      : { key, direction: 'asc' };
+    renderVehicle(vehicle);
+  }));
   document.querySelector('#inspection-form').addEventListener('submit', (event) => handleSubmit(event, vehicle));
 }
 
