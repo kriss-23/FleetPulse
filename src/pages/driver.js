@@ -66,6 +66,16 @@ function renderVehicle(vehicle) {
       <td>${item.photo_url ? `<a href="${escapeHtml(item.photo_url)}" target="_blank" rel="noopener noreferrer"><img class="inspection-photo" src="${escapeHtml(item.photo_url)}" alt="Odometer photo from ${escapeHtml(formatInspectionDateTime(item.created_at || item.inspection_date))}" loading="lazy"></a>` : '<span class="text-secondary">No photo</span>'}</td>
     </tr>
   `).join('');
+  const passedInspections = inspections.filter((item) => item.passes_check).length;
+  const failedInspections = inspections.length - passedInspections;
+  const inspectionCards = sortedInspections.map((item) => `
+    <article class="data-card">
+      <div><span class="data-card-label">Date & time</span><strong>${escapeHtml(formatInspectionDateTime(item.created_at || item.inspection_date))}</strong></div>
+      <div><span class="data-card-label">Result</span><strong class="${item.passes_check ? 'text-success' : 'text-danger'}">${item.passes_check ? 'Passed' : 'Failed'}</strong></div>
+      <div><span class="data-card-label">Odometer</span><strong>${Number(item.odometer_reading || 0).toLocaleString()} km</strong></div>
+      <div><span class="data-card-label">Photo</span>${item.photo_url ? `<a href="${escapeHtml(item.photo_url)}" target="_blank" rel="noopener noreferrer"><img class="inspection-photo" src="${escapeHtml(item.photo_url)}" alt="Odometer photo" loading="lazy"></a>` : '<span class="text-secondary">No photo</span>'}</div>
+    </article>
+  `).join('');
   content.innerHTML = `
     <div class="row g-4">
       <div class="col-lg-5">
@@ -128,7 +138,7 @@ function renderVehicle(vehicle) {
         </div>
         <span class="badge text-bg-light">${inspections.length} record${inspections.length === 1 ? '' : 's'}</span>
       </div>
-      ${inspections.length ? `<div class="table-responsive"><table class="table align-middle mb-0"><caption class="visually-hidden">Submitted vehicle inspections</caption><thead><tr><th scope="col" aria-sort="${inspectionSort.key === 'created_at' ? inspectionSort.direction : 'none'}">${inspectionSortButton('created_at', 'Date & time')}</th><th scope="col" aria-sort="${inspectionSort.key === 'passes_check' ? inspectionSort.direction : 'none'}">${inspectionSortButton('passes_check', 'Result')}</th><th scope="col" aria-sort="${inspectionSort.key === 'odometer_reading' ? inspectionSort.direction : 'none'}">${inspectionSortButton('odometer_reading', 'Odometer')}</th><th scope="col">Photo</th></tr></thead><tbody>${inspectionRows}</tbody></table></div>` : '<p class="text-secondary mb-0">No inspections have been submitted for this vehicle yet.</p>'}
+      ${inspections.length ? `<div class="inspection-chart chart-card mb-3"><div class="d-flex justify-content-between mb-2"><span>Inspection results</span><strong>${passedInspections} passed / ${failedInspections} failed</strong></div><div class="chart-bar-track"><span class="chart-bar chart-bar-active" style="width:${inspections.length ? (passedInspections / inspections.length) * 100 : 0}%"></span></div></div><div class="desktop-table table-responsive"><table class="table align-middle mb-0"><caption class="visually-hidden">Submitted vehicle inspections</caption><thead><tr><th scope="col" aria-sort="${inspectionSort.key === 'created_at' ? inspectionSort.direction : 'none'}">${inspectionSortButton('created_at', 'Date & time')}</th><th scope="col" aria-sort="${inspectionSort.key === 'passes_check' ? inspectionSort.direction : 'none'}">${inspectionSortButton('passes_check', 'Result')}</th><th scope="col" aria-sort="${inspectionSort.key === 'odometer_reading' ? inspectionSort.direction : 'none'}">${inspectionSortButton('odometer_reading', 'Odometer')}</th><th scope="col">Photo</th></tr></thead><tbody>${inspectionRows}</tbody></table></div><div class="mobile-card-list">${inspectionCards}</div>` : '<p class="text-secondary mb-0">No inspections have been submitted for this vehicle yet.</p>'}
     </section>
   `;
   content.querySelectorAll('[data-inspection-sort]').forEach((button) => button.addEventListener('click', () => {

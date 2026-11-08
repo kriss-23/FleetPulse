@@ -28,19 +28,19 @@ const appContent = `
           <p class="small text-secondary">Fill a seeded demo account into the sign-in form. The demo password is read from <code>VITE_DEMO_PASSWORD</code>.</p>
           <div class="demo-login-grid">
             <div class="demo-role">
-              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="manager">Fleet Manager</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="manager"><i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>View Manager demo</button>
               <p>Manage vehicles, assignments, statuses, and maintenance requests.</p>
             </div>
             <div class="demo-role">
-              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="accountant">Accountant</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="accountant"><i class="bi bi-receipt me-1" aria-hidden="true"></i>View Accountant demo</button>
               <p>Review maintenance invoices, fuel costs, and fleet expenses.</p>
             </div>
             <div class="demo-role">
-              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="warehouse">Warehouse Specialist</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="warehouse"><i class="bi bi-box-seam me-1" aria-hidden="true"></i>View Warehouse demo</button>
               <p>Check vehicle availability, cargo details, and operational readiness.</p>
             </div>
             <div class="demo-role">
-              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="driver">Driver</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-role="driver"><i class="bi bi-person-badge me-1" aria-hidden="true"></i>View Driver demo</button>
               <p>Complete inspections, submit reports, and record vehicle issues.</p>
             </div>
           </div>
@@ -423,6 +423,7 @@ function renderSummary(summary) {
     summaryCard('Active', summary.active, 'bi-check-circle-fill', 'summary-active'),
     summaryCard('Scheduled maintenance', summary.maintenance, 'bi-tools', 'summary-maintenance'),
     summaryCard('Urgent repair', summary.outOfService, 'bi-exclamation-octagon-fill', 'summary-out'),
+    `<div class="col-12"><article class="chart-card" aria-labelledby="fleet-status-chart-title"><div class="d-flex justify-content-between align-items-center gap-3 mb-3"><h3 class="h6 mb-0" id="fleet-status-chart-title">Fleet status distribution</h3><span class="small text-secondary">${summary.total} vehicles</span></div><div class="chart-bars"><div class="chart-bar-row"><span>Active</span><div class="chart-bar-track"><span class="chart-bar chart-bar-active" style="width:${summary.total ? (summary.active / summary.total) * 100 : 0}%"></span></div><strong>${summary.active}</strong></div><div class="chart-bar-row"><span>Maintenance</span><div class="chart-bar-track"><span class="chart-bar chart-bar-maintenance" style="width:${summary.total ? (summary.maintenance / summary.total) * 100 : 0}%"></span></div><strong>${summary.maintenance}</strong></div><div class="chart-bar-row"><span>Urgent repair</span><div class="chart-bar-track"><span class="chart-bar chart-bar-out" style="width:${summary.total ? (summary.outOfService / summary.total) * 100 : 0}%"></span></div><strong>${summary.outOfService}</strong></div></div></article></div>`,
   ].join('');
 }
 

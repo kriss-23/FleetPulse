@@ -62,6 +62,7 @@ function renderPanel() {
     content.innerHTML = emptyState({ icon: 'bi-truck', title: 'No vehicles found', message: 'Fleet vehicles will appear here when they are available.' });
     return;
   }
+  const mobileVehicleCards = sortedVehicles().map((vehicle) => `<article class="data-card"><div class="data-card-heading">${vehicleImage(vehicle, 'admin-vehicle-photo')}<div><strong>${escapeHtml(vehicle.license_plate)}</strong><span>${escapeHtml(vehicle.brand_model)}</span></div></div><div><span class="data-card-label">Status</span>${statusBadge(vehicle.status)}</div><div><span class="data-card-label">Assigned driver</span><strong>${escapeHtml(vehicle.assigned_driver?.full_name || 'Unassigned')}</strong></div><div><span class="data-card-label">Latest inspection</span>${inspectionSummary(vehicle)}</div><div><span class="data-card-label">Mileage</span><strong>${Number(vehicle.mileage).toLocaleString()} km</strong></div><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary" type="button" data-action="assign" data-id="${vehicle.id}">${vehicle.assigned_driver_id ? 'Reassign' : 'Assign'}</button><button class="btn btn-outline-secondary" type="button" data-action="status" data-id="${vehicle.id}">Status</button></div></article>`).join('');
   content.innerHTML = `
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
       <div><span class="badge text-bg-light">${state.vehicles.length} vehicles</span><span class="badge text-bg-warning ms-2">${state.maintenance.length} open maintenance requests</span></div>
@@ -77,7 +78,7 @@ function renderPanel() {
           <button class="btn btn-sm btn-outline-primary" type="button" data-action="maintenance" data-id="${item.id}">Review request</button>
         </article></div>`).join('')}</div>` : emptyState({ icon: 'bi-wrench-adjustable-circle', title: 'No open maintenance requests', message: 'Pending and approved requests will appear here.' })}
     </section>
-    <div class="placeholder-card p-0 overflow-hidden mb-4">
+    <div class="placeholder-card p-0 overflow-hidden mb-4 desktop-table">
       <div class="table-responsive">
         <table class="table align-middle mb-0">
           <caption class="visually-hidden">Fleet vehicles and manager actions</caption>
@@ -96,6 +97,7 @@ function renderPanel() {
             </tr>`).join('')}</tbody>
         </table>
       </div>
+      <div class="mobile-card-list mb-4">${mobileVehicleCards}</div>
     </div>
     <div id="admin-modals"></div>
   `;

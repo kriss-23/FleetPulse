@@ -8,8 +8,9 @@ bundles, logs, or Git.
 ## Preparation
 
 1. Apply the committed migrations to the intended Supabase project.
-2. Create the optional Storage buckets `inspection-photos`, `issue-photos`,
-   and `invoices` if demo uploads are wanted.
+2. Apply the committed Storage migrations. The private `invoices` bucket is
+   created by migration and the seed generates small demo PDF invoices when
+   local invoice assets are unavailable.
 3. Put local assets in `scripts/assets/` using the filenames listed by the
    script when they are unavailable.
 4. Create `.env` in the repository root. Do not use `.env.local` for this
@@ -46,6 +47,6 @@ without sending email. Existing unrelated records are preserved.
 
 The seed includes active, scheduled-maintenance, and urgent-repair vehicles,
 cargo profiles, historical inspections, a report over nine driving hours for
-the alert UI, and pending/approved maintenance records when matching invoice
-assets are available. Missing asset filenames are reported; the script never
-stores fabricated external URLs.
+the alert UI, pending/approved maintenance records, and demo invoice PDFs.
+Missing image asset filenames are reported; the script never stores fabricated
+external URLs.

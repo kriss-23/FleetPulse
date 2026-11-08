@@ -241,12 +241,44 @@ async function ensureUsers() {
   return users;
 }
 
+function demoInvoicePdf(filename) {
+  const invoiceNumber = filename.replace('.pdf', '').toUpperCase();
+  const lines = [
+    'FleetPulse demo invoice',
+    `Invoice reference: ${invoiceNumber}`,
+    'Vehicle maintenance service',
+    'This document is a seeded presentation record.',
+  ];
+  const stream = `BT /F1 18 Tf 72 720 Td (${lines[0]}) Tj 0 -32 Td /F1 12 Tf (${lines[1]}) Tj 0 -24 Td (${lines[2]}) Tj 0 -24 Td (${lines[3]}) Tj ET`;
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets.push(Buffer.byteLength(pdf, 'utf8'));
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+  const xrefOffset = Buffer.byteLength(pdf, 'utf8');
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((offset) => {
+    pdf += `${String(offset).padStart(10, '0')} 00000 n \n`;
+  });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  return Buffer.from(pdf, 'utf8');
+}
+
 async function uploadAssets() {
   const uploaded = {};
   if (dryRun) {
     assetDefinitions.forEach((asset) => {
       const source = path.join(ROOT, 'scripts', 'assets', asset.filename);
-      if (!fs.existsSync(source)) counts.missingAssets.push(asset.filename);
+      const generatedDemoInvoice = asset.bucket === 'invoices' && asset.filename.endsWith('.pdf');
+      if (!fs.existsSync(source) && !generatedDemoInvoice) counts.missingAssets.push(asset.filename);
     });
     return uploaded;
   }
@@ -255,12 +287,17 @@ async function uploadAssets() {
   const availableBuckets = new Set(buckets.map((bucket) => bucket.name));
   for (const asset of assetDefinitions) {
     const source = path.join(ROOT, 'scripts', 'assets', asset.filename);
-    if (!fs.existsSync(source) || !availableBuckets.has(asset.bucket)) {
+    const isDemoInvoice = asset.bucket === 'invoices' && asset.filename.endsWith('.pdf');
+    if (!fs.existsSync(source) && !isDemoInvoice) {
+      counts.missingAssets.push(asset.filename);
+      continue;
+    }
+    if (!availableBuckets.has(asset.bucket)) {
       counts.missingAssets.push(asset.filename);
       continue;
     }
     const storagePath = `demo/${asset.filename}`;
-    const file = fs.readFileSync(source);
+    const file = fs.existsSync(source) ? fs.readFileSync(source) : demoInvoicePdf(asset.filename);
     await assertSuccess(
       await supabase.storage.from(asset.bucket).upload(storagePath, file, {
         contentType: asset.contentType,
@@ -443,7 +480,31 @@ async function seedData() {
       status: 'approved',
     },
   ];
-  await upsertRows('maintenance_logs', maintenanceRows);
+  try {
+    await upsertRows('maintenance_logs', maintenanceRows);
+  } catch (error) {
+    if (!error.message.includes('Maintenance records must use FleetPulse RPCs')) throw error;
+    const signedIn = await assertSuccess(
+      await supabase.auth.signInWithPassword({
+        email: accounts.find((account) => account.key === 'manager').email,
+        password: demoPassword,
+      }),
+      'Signing in as demo manager for invoice references'
+    );
+    if (!signedIn.user) throw new Error('Demo manager sign-in did not return a user.');
+    for (const row of maintenanceRows) {
+      if (!row.invoice_pdf_url) continue;
+      await assertSuccess(
+        await supabase.rpc('set_maintenance_invoice_reference', {
+          p_maintenance_log_id: row.id,
+          p_invoice_pdf_url: row.invoice_pdf_url,
+          p_request_id: crypto.randomUUID(),
+        }),
+        `Updating invoice reference for ${row.id}`
+      );
+    }
+    recordSummary('maintenance invoice references', 'updated', maintenanceRows.length);
+  }
 }
 
 console.log(`${dryRun ? 'DRY RUN' : 'SEED'}: FleetPulse demo project ${EXPECTED_PROJECT_REF}`);

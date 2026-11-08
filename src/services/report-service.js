@@ -85,5 +85,13 @@ export async function submitDailyReport({
     if (objectPath) await supabaseClient.storage.from(BUCKET).remove([objectPath]);
     throw new Error(`Daily report could not be submitted: ${error.message}`);
   }
-  return data;
+  let issuePhotoUrl = null;
+  if (objectPath) {
+    const { data: signedPhoto, error: signedPhotoError } = await supabaseClient.storage
+      .from(BUCKET)
+      .createSignedUrl(objectPath, 300);
+    if (signedPhotoError) throw new Error(`Saved issue photo could not be loaded: ${signedPhotoError.message}`);
+    issuePhotoUrl = signedPhoto.signedUrl;
+  }
+  return { ...data, issue_photo_url: issuePhotoUrl, issue_urgency: issueUrgency };
 }

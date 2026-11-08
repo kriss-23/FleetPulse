@@ -109,6 +109,7 @@ function renderReportForm(vehicle) {
             </fieldset>
             <button class="btn btn-primary mt-4" type="submit"><i class="bi bi-send me-1" aria-hidden="true"></i>Submit daily report</button>
           </form>
+          <div id="report-result" class="mt-4" aria-live="polite"></div>
         </article>
       </div>
     </div>
@@ -149,6 +150,10 @@ async function handleSubmit(event, vehicle) {
       issuePhoto: document.querySelector('#issue-photo').files[0] || null,
     });
     showToast(`Daily report ${result.report_id ? 'saved' : 'processed'} for ${vehicle.license_plate}.`, { title: 'Report submitted', variant: 'success' });
+    const reportResult = document.querySelector('#report-result');
+    const issueLabel = result.issue_urgency && result.issue_urgency !== 'none' ? result.issue_urgency : 'No issue';
+    const hoursPercent = Math.min(100, (drivingHours / 9) * 100);
+    reportResult.innerHTML = `<article class="success-card"><div class="d-flex justify-content-between gap-3"><div><p class="eyebrow mb-2">Saved report</p><h2 class="h5 mb-1">Daily report submitted</h2><p class="text-secondary mb-0">${escapeHtml(new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short', hourCycle: 'h23' }).format(new Date()))}</p></div><i class="bi bi-check-circle-fill text-success fs-2" aria-hidden="true"></i></div><div class="mt-3"><div class="d-flex justify-content-between small"><span>Driving hours</span><strong>${drivingHours.toFixed(2)} / 9.00 hours</strong></div><div class="chart-bar-track"><span class="chart-bar ${drivingHours >= 9 ? 'chart-bar-out' : 'chart-bar-active'}" style="width:${hoursPercent}%"></span></div></div><div class="success-card-details"><span>Mileage: <strong>${Number(document.querySelector('#end-mileage').value).toLocaleString()} km</strong></span><span>Fuel / battery: <strong>${document.querySelector('#fuel-level').value}%</strong></span><span>Issue: <strong>${escapeHtml(issueLabel)}</strong></span></div>${result.issue_photo_url ? `<a class="d-inline-block mt-3" href="${escapeHtml(result.issue_photo_url)}" target="_blank" rel="noopener noreferrer"><img class="inspection-photo" src="${escapeHtml(result.issue_photo_url)}" alt="Saved issue photo" loading="lazy"></a>` : ''}</article>`;
     form.reset();
     form.classList.remove('was-validated');
   } catch (error) {
